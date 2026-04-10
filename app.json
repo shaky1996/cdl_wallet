@@ -1,32 +1,25 @@
 {
-  "expo": {
-    "name": "CDLWallet",
-    "slug": "CDLWallet",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "ios": {
-      "supportsTablet": true
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+    "expo": {
+      "name": "CDL Wallet",
+      "slug": "cdl-wallet",
+      "version": "1.0.0",
+      "orientation": "portrait",
+      "icon": "./assets/icon.png",
+      "splash": { "backgroundColor": "#111214" },
+      "ios": {
+        "bundleIdentifier": "com.yourname.cdlwallet",
+        "infoPlist": {
+          "NSCameraUsageDescription": "Take a photo of your CDL or med card",
+          "NSPhotoLibraryUsageDescription": "Upload your CDL or med card from photos"
+        }
       },
-      "edgeToEdgeEnabled": true
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
-    "plugins": [
-      "expo-mail-composer"
-    ]
+      "android": {
+        "package": "com.yourname.cdlwallet",
+        "permissions": ["CAMERA", "READ_EXTERNAL_STORAGE"]
+      },
+      "plugins": [
+        "expo-notifications",
+        "expo-local-authentication"
+      ]
+    }
   }
-}
