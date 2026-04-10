@@ -1,0 +1,476 @@
+import React, { useState } from 'react';
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    StyleSheet,
+    SafeAreaView,
+    Alert,
+    ScrollView,
+    ActivityIndicator,
+    Platform
+} from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import * as DocumentPicker from 'expo-document-picker';
+import { Image } from 'react-native';
+import { theme } from '../styles/theme';
+import { common } from '../styles/common';
+import { saveDocFile } from '../services/fileSystem';
+import { saveDoc } from '../services/storage';
+import { extractExpiryDate } from '../services/ocr';
+import { scheduleExpiryReminders } from '../services/notifications';
+import { useAsyncError } from '../hooks/useAsyncError';
+import { DOC_LABELS } from '../constants/docTypes';
+
+export default function UploadScreen({ navigation, route }) {
+    const { docType } = route.params;
+    const docLabel = DOC_LABELS[docType];
+
+    const [imageUri, setImageUri] = useState(null);
+    const [expiryDate, setExpiryDate] = useState('');
+    const [ocrRunning, setOcrRunning] = useState(false);
+    const [ocrDetected, setOcrDetected] = useState(false);
+    const { loading, run } = useAsyncError();
+
+    const requestCameraPermission = async () => {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== 'granted') {
+            Alert.alert(
+                'Camera access needed',
+                'Please allow camera access in Settings to take a photo of your document.'
+            );
+            return false;
+        }
+        return true;
+    };
+
+    const requestGalleryPermission = async () => {
+        const { status } =
+            await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+            Alert.alert(
+                'Gallery access needed',
+                'Please allow photo library access in Settings.'
+            );
+            return false;
+        }
+        return true;
+    };
+
+    const runOcr = async (uri) => {
+        setOcrRunning(true);
+        try {
+            const detected = await extractExpiryDate(uri);
+            if (detected) {
+                setExpiryDate(detected);
+                setOcrDetected(true);
+            }
+        } catch (e) {
+            console.warn('OCR failed silently:', e.message);
+            // OCR failure is non-fatal — user can enter date manually
+        } finally {
+            setOcrRunning(false);
+        }
+    };
+
+    const handleCamera = async () => {
+        const granted = await requestCameraPermission();
+        if (!granted) return;
+
+        const result = await ImagePicker.launchCameraAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            quality: 0.9,
+            allowsEditing: true
+        });
+
+        if (!result.canceled && result.assets?.[0]) {
+            const uri = result.assets[0].uri;
+            setImageUri(uri);
+            setOcrDetected(false);
+            await runOcr(uri);
+        }
+    };
+
+    const handleGallery = async () => {
+        const granted = await requestGalleryPermission();
+        if (!granted) return;
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            quality: 0.9
+        });
+
+        if (!result.canceled && result.assets?.[0]) {
+            const uri = result.assets[0].uri;
+            setImageUri(uri);
+            setOcrDetected(false);
+            await runOcr(uri);
+        }
+    };
+
+    const handleFilePicker = async () => {
+        try {
+            const result = await DocumentPicker.getDocumentAsync({
+                type: ['image/*', 'application/pdf'],
+                copyToCacheDirectory: true
+            });
+
+            if (result.canceled) return;
+            const uri = result.assets?.[0]?.uri;
+            if (!uri) return;
+
+            setImageUri(uri);
+            setOcrDetected(false);
+            // OCR on PDFs not supported — user enters date manually
+        } catch (e) {
+            Alert.alert(
+                'Error',
+                'Could not open file picker. Please try again.'
+            );
+        }
+    };
+
+    const validateExpiryDate = (dateStr) => {
+        if (!dateStr.trim()) return 'Please enter or confirm the expiry date.';
+        const parsed = new Date(dateStr);
+        if (isNaN(parsed.getTime()))
+            return 'Invalid date format. Use YYYY-MM-DD.';
+        return null;
+    };
+
+    const handleSave = () => {
+        if (!imageUri) {
+            Alert.alert(
+                'No document',
+                'Please take a photo or pick a file first.'
+            );
+            return;
+        }
+
+        const validationError = validateExpiryDate(expiryDate);
+        if (validationError) {
+            Alert.alert('Check expiry date', validationError);
+            return;
+        }
+
+        run(
+            async () => {
+                const localUri = await saveDocFile(docType, imageUri);
+                await saveDoc(docType, {
+                    localUri,
+                    expiryDate,
+                    uploadedAt: new Date().toISOString(),
+                    label: docLabel
+                });
+                await scheduleExpiryReminders(docType, expiryDate);
+            },
+            {
+                onSuccess: () => {
+                    Alert.alert(
+                        'Saved',
+                        `Your ${docLabel} has been saved. You'll be reminded 30 and 10 days before expiry.`,
+                        [{ text: 'OK', onPress: () => navigation.goBack() }]
+                    );
+                },
+                errorMessage: `Could not save your ${docLabel}. Please try again.`
+            }
+        );
+    };
+
+    const formatDateInput = (text) => {
+        // Auto-format as user types: YYYY-MM-DD
+        const cleaned = text.replace(/[^0-9-]/g, '');
+        setExpiryDate(cleaned);
+        setOcrDetected(false);
+    };
+
+    return (
+        <SafeAreaView style={common.safeArea}>
+            <View style={styles.topBar}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Text style={styles.backBtn}>‹ Back</Text>
+                </TouchableOpacity>
+                <Text style={styles.screenTitle}>Upload {docLabel}</Text>
+                <View style={{ width: 60 }} />
+            </View>
+
+            <ScrollView
+                style={common.screenBody}
+                contentContainerStyle={styles.scrollContent}
+                keyboardShouldPersistTaps='handled'
+            >
+                {/* Image preview or placeholder */}
+                <Text style={styles.label}>Document image</Text>
+                {imageUri ? (
+                    <Image
+                        source={{ uri: imageUri }}
+                        style={styles.preview}
+                        resizeMode='contain'
+                    />
+                ) : (
+                    <View style={styles.placeholder}>
+                        <Text style={styles.placeholderText}>
+                            No document selected
+                        </Text>
+                    </View>
+                )}
+
+                {/* Source buttons */}
+                <View style={styles.sourceRow}>
+                    <TouchableOpacity
+                        style={styles.sourceBtn}
+                        onPress={handleCamera}
+                    >
+                        <Text style={styles.sourceBtnText}>Camera</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.sourceBtn}
+                        onPress={handleGallery}
+                    >
+                        <Text style={styles.sourceBtnText}>Gallery</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.sourceBtn}
+                        onPress={handleFilePicker}
+                    >
+                        <Text style={styles.sourceBtnText}>PDF file</Text>
+                    </TouchableOpacity>
+                </View>
+
+                {/* OCR result / manual date entry */}
+                <Text style={[styles.label, { marginTop: 20 }]}>
+                    Expiry date
+                </Text>
+
+                {ocrRunning && (
+                    <View style={styles.ocrRunning}>
+                        <ActivityIndicator
+                            color={theme.colors.accent}
+                            size='small'
+                        />
+                        <Text style={styles.ocrRunningText}>
+                            Reading expiry date...
+                        </Text>
+                    </View>
+                )}
+
+                {ocrDetected && !ocrRunning && (
+                    <View style={styles.ocrBadge}>
+                        <Text style={styles.ocrBadgeText}>
+                            Auto-detected — confirm or edit below
+                        </Text>
+                    </View>
+                )}
+
+                <View style={styles.dateInputWrap}>
+                    <Text style={styles.dateInputLabel}>YYYY-MM-DD</Text>
+                    <Text
+                        style={styles.dateInput}
+                        onPress={() => {}} // In production use a DateTimePicker modal
+                    >
+                        {expiryDate || (
+                            <Text style={{ color: theme.colors.textMuted }}>
+                                e.g. 2026-03-14
+                            </Text>
+                        )}
+                    </Text>
+                </View>
+
+                {/* Notification preview */}
+                {expiryDate && !isNaN(new Date(expiryDate)) && (
+                    <View style={styles.reminderPreview}>
+                        <Text style={styles.reminderText}>
+                            Reminders will be set for{' '}
+                            <Text
+                                style={{
+                                    color: theme.colors.amber,
+                                    fontWeight: '600'
+                                }}
+                            >
+                                {(() => {
+                                    const d = new Date(expiryDate);
+                                    d.setDate(d.getDate() - 30);
+                                    return d.toLocaleDateString('en-US', {
+                                        month: 'short',
+                                        day: 'numeric'
+                                    });
+                                })()}
+                            </Text>{' '}
+                            (30 days) and{' '}
+                            <Text
+                                style={{
+                                    color: theme.colors.red,
+                                    fontWeight: '600'
+                                }}
+                            >
+                                {(() => {
+                                    const d = new Date(expiryDate);
+                                    d.setDate(d.getDate() - 10);
+                                    return d.toLocaleDateString('en-US', {
+                                        month: 'short',
+                                        day: 'numeric'
+                                    });
+                                })()}
+                            </Text>{' '}
+                            (10 days) before expiry.
+                        </Text>
+                    </View>
+                )}
+
+                {/* Save button */}
+                <TouchableOpacity
+                    style={[styles.saveBtn, loading && { opacity: 0.5 }]}
+                    onPress={handleSave}
+                    disabled={loading}
+                >
+                    {loading ? (
+                        <ActivityIndicator color='#1a1200' />
+                    ) : (
+                        <Text style={styles.saveBtnText}>Save document ›</Text>
+                    )}
+                </TouchableOpacity>
+            </ScrollView>
+        </SafeAreaView>
+    );
+}
+
+const styles = StyleSheet.create({
+    topBar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: theme.spacing.lg,
+        paddingTop: theme.spacing.sm,
+        paddingBottom: theme.spacing.md,
+        backgroundColor: theme.colors.bg
+    },
+    backBtn: {
+        color: theme.colors.accent,
+        fontSize: theme.font.base,
+        width: 60
+    },
+    screenTitle: {
+        color: theme.colors.textPrimary,
+        fontSize: theme.font.lg,
+        fontWeight: '500'
+    },
+    scrollContent: {
+        paddingBottom: 40
+    },
+    label: {
+        color: theme.colors.textMuted,
+        fontSize: theme.font.sm,
+        fontWeight: '600',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+        marginBottom: theme.spacing.sm
+    },
+    preview: {
+        width: '100%',
+        height: 200,
+        borderRadius: theme.radius.md,
+        backgroundColor: theme.colors.bgCard,
+        marginBottom: theme.spacing.sm
+    },
+    placeholder: {
+        width: '100%',
+        height: 200,
+        borderRadius: theme.radius.md,
+        backgroundColor: theme.colors.bgCard,
+        borderWidth: 1.5,
+        borderColor: theme.colors.border,
+        borderStyle: 'dashed',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: theme.spacing.sm
+    },
+    placeholderText: {
+        color: theme.colors.textMuted,
+        fontSize: theme.font.md
+    },
+    sourceRow: {
+        flexDirection: 'row',
+        gap: theme.spacing.sm,
+        marginBottom: theme.spacing.sm
+    },
+    sourceBtn: {
+        flex: 1,
+        backgroundColor: theme.colors.bgCard,
+        borderRadius: theme.radius.md,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        padding: theme.spacing.md,
+        alignItems: 'center'
+    },
+    sourceBtnText: {
+        color: theme.colors.textPrimary,
+        fontSize: theme.font.md,
+        fontWeight: '500'
+    },
+    ocrRunning: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: theme.spacing.sm,
+        marginBottom: theme.spacing.sm
+    },
+    ocrRunningText: {
+        color: theme.colors.textMuted,
+        fontSize: theme.font.md
+    },
+    ocrBadge: {
+        backgroundColor: '#0C447C',
+        borderRadius: theme.radius.sm,
+        paddingHorizontal: theme.spacing.sm,
+        paddingVertical: 4,
+        alignSelf: 'flex-start',
+        marginBottom: theme.spacing.sm
+    },
+    ocrBadgeText: {
+        color: '#85B7EB',
+        fontSize: theme.font.sm,
+        fontWeight: '500'
+    },
+    dateInputWrap: {
+        backgroundColor: theme.colors.bgCard,
+        borderRadius: theme.radius.md,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        padding: theme.spacing.md,
+        marginBottom: theme.spacing.sm
+    },
+    dateInputLabel: {
+        color: theme.colors.textMuted,
+        fontSize: 10,
+        marginBottom: 4
+    },
+    dateInput: {
+        color: theme.colors.textPrimary,
+        fontSize: theme.font.base,
+        fontWeight: '500'
+    },
+    reminderPreview: {
+        backgroundColor: theme.colors.bgCard,
+        borderRadius: theme.radius.md,
+        borderWidth: 0.5,
+        borderColor: theme.colors.border,
+        padding: theme.spacing.md,
+        marginBottom: theme.spacing.md
+    },
+    reminderText: {
+        color: theme.colors.textMuted,
+        fontSize: 12,
+        lineHeight: 18
+    },
+    saveBtn: {
+        backgroundColor: theme.colors.accent,
+        borderRadius: theme.radius.md,
+        padding: theme.spacing.lg,
+        alignItems: 'center',
+        marginTop: theme.spacing.sm
+    },
+    saveBtnText: {
+        color: '#1a1200',
+        fontSize: theme.font.lg,
+        fontWeight: '600'
+    }
+});
