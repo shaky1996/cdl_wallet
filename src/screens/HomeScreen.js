@@ -22,6 +22,11 @@ export default function HomeScreen({ navigation }) {
         }, [])
     );
 
+    const handleDelete = async (docType) => {
+        const updatedDocs = await deleteDoc(docType);
+        setDocs(updatedDocs);
+    };
+
     return (
         <SafeAreaView style={styles.safe}>
             <View style={styles.header}>
@@ -47,6 +52,7 @@ export default function HomeScreen({ navigation }) {
                               })
                             : navigation.navigate('Upload', { docType: 'cdl' })
                     }
+                    onDelete={() => handleDelete('cdl')}
                 />
 
                 <DocCard
@@ -61,6 +67,7 @@ export default function HomeScreen({ navigation }) {
                                   docType: 'med_card'
                               })
                     }
+                    onDelete={() => handleDelete('med_card')}
                 />
 
                 <TouchableOpacity

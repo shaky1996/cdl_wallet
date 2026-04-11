@@ -13,7 +13,7 @@ import {
 import { theme } from '../styles/theme';
 import { common } from '../styles/common';
 import { getDocs } from '../services/storage';
-import { deleteDoc } from '../services/storage';
+import { deleteDoc } from '../services/fileSystem';
 import { loadDocFileBase64 } from '../services/fileSystem';
 import { cancelDocReminders } from '../services/notifications';
 import {
@@ -276,6 +276,7 @@ export default function DocViewerScreen({ navigation, route }) {
                                 styles.actionBtnText,
                                 { color: theme.colors.red }
                             ]}
+                            
                         >
                             Delete
                         </Text>

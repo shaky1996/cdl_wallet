@@ -35,3 +35,4 @@ export const deleteArchivedDoc = async (id) => {
     const updated = archive.filter((d) => d.id !== id);
     await AsyncStorage.setItem(ARCHIVE_KEY, JSON.stringify(updated));
 };
+
