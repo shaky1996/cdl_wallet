@@ -13,11 +13,12 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { Image } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+
 import { theme } from '../styles/theme';
 import { common } from '../styles/common';
 import { saveDocFile } from '../services/fileSystem';
 import { saveDoc } from '../services/storage';
-import { extractExpiryDate } from '../services/ocr';
 import { scheduleExpiryReminders } from '../services/notifications';
 import { useAsyncError } from '../hooks/useAsyncError';
 import { DOC_LABELS } from '../constants/docTypes';
@@ -28,8 +29,9 @@ export default function UploadScreen({ navigation, route }) {
 
     const [imageUri, setImageUri] = useState(null);
     const [expiryDate, setExpiryDate] = useState('');
-    const [ocrRunning, setOcrRunning] = useState(false);
     const [ocrDetected, setOcrDetected] = useState(false);
+    const [showPicker, setShowPicker] = useState(false);
+
     const { loading, run } = useAsyncError();
 
     const requestCameraPermission = async () => {
@@ -57,22 +59,6 @@ export default function UploadScreen({ navigation, route }) {
         return true;
     };
 
-    const runOcr = async (uri) => {
-        setOcrRunning(true);
-        try {
-            const detected = await extractExpiryDate(uri);
-            if (detected) {
-                setExpiryDate(detected);
-                setOcrDetected(true);
-            }
-        } catch (e) {
-            console.warn('OCR failed silently:', e.message);
-            // OCR failure is non-fatal — user can enter date manually
-        } finally {
-            setOcrRunning(false);
-        }
-    };
-
     const handleCamera = async () => {
         const granted = await requestCameraPermission();
         if (!granted) return;
@@ -87,7 +73,6 @@ export default function UploadScreen({ navigation, route }) {
             const uri = result.assets[0].uri;
             setImageUri(uri);
             setOcrDetected(false);
-            await runOcr(uri);
         }
     };
 
@@ -104,7 +89,6 @@ export default function UploadScreen({ navigation, route }) {
             const uri = result.assets[0].uri;
             setImageUri(uri);
             setOcrDetected(false);
-            await runOcr(uri);
         }
     };
 
@@ -121,7 +105,6 @@ export default function UploadScreen({ navigation, route }) {
 
             setImageUri(uri);
             setOcrDetected(false);
-            // OCR on PDFs not supported — user enters date manually
         } catch (e) {
             Alert.alert(
                 'Error',
@@ -131,11 +114,21 @@ export default function UploadScreen({ navigation, route }) {
     };
 
     const validateExpiryDate = (dateStr) => {
-        if (!dateStr.trim()) return 'Please enter or confirm the expiry date.';
+        if (!dateStr.trim()) return 'Please enter the expiry date.';
         const parsed = new Date(dateStr);
         if (isNaN(parsed.getTime()))
             return 'Invalid date format. Use YYYY-MM-DD.';
         return null;
+    };
+
+    const onDateChange = (event, selectedDate) => {
+        setShowPicker(false);
+
+        if (selectedDate) {
+            const formatted = selectedDate.toISOString().split('T')[0];
+            setExpiryDate(formatted);
+            setOcrDetected(false);
+        }
     };
 
     const handleSave = () => {
@@ -168,20 +161,13 @@ export default function UploadScreen({ navigation, route }) {
                 onSuccess: () => {
                     Alert.alert(
                         'Saved',
-                        `Your ${docLabel} has been saved. You'll be reminded 30 and 10 days before expiry.`,
+                        `Your ${docLabel} has been saved.`,
                         [{ text: 'OK', onPress: () => navigation.goBack() }]
                     );
                 },
                 errorMessage: `Could not save your ${docLabel}. Please try again.`
             }
         );
-    };
-
-    const formatDateInput = (text) => {
-        // Auto-format as user types: YYYY-MM-DD
-        const cleaned = text.replace(/[^0-9-]/g, '');
-        setExpiryDate(cleaned);
-        setOcrDetected(false);
     };
 
     return (
@@ -199,13 +185,12 @@ export default function UploadScreen({ navigation, route }) {
                 contentContainerStyle={styles.scrollContent}
                 keyboardShouldPersistTaps='handled'
             >
-                {/* Image preview or placeholder */}
                 <Text style={styles.label}>Document image</Text>
+
                 {imageUri ? (
                     <Image
                         source={{ uri: imageUri }}
                         style={styles.preview}
-                        resizeMode='contain'
                     />
                 ) : (
                     <View style={styles.placeholder}>
@@ -215,109 +200,53 @@ export default function UploadScreen({ navigation, route }) {
                     </View>
                 )}
 
-                {/* Source buttons */}
                 <View style={styles.sourceRow}>
-                    <TouchableOpacity
-                        style={styles.sourceBtn}
-                        onPress={handleCamera}
-                    >
+                    <TouchableOpacity style={styles.sourceBtn} onPress={handleCamera}>
                         <Text style={styles.sourceBtnText}>Camera</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.sourceBtn}
-                        onPress={handleGallery}
-                    >
+                    <TouchableOpacity style={styles.sourceBtn} onPress={handleGallery}>
                         <Text style={styles.sourceBtnText}>Gallery</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.sourceBtn}
-                        onPress={handleFilePicker}
-                    >
+                    <TouchableOpacity style={styles.sourceBtn} onPress={handleFilePicker}>
                         <Text style={styles.sourceBtnText}>PDF file</Text>
                     </TouchableOpacity>
                 </View>
 
-                {/* OCR result / manual date entry */}
                 <Text style={[styles.label, { marginTop: 20 }]}>
                     Expiry date
                 </Text>
 
-                {ocrRunning && (
-                    <View style={styles.ocrRunning}>
-                        <ActivityIndicator
-                            color={theme.colors.accent}
-                            size='small'
-                        />
-                        <Text style={styles.ocrRunningText}>
-                            Reading expiry date...
-                        </Text>
-                    </View>
-                )}
-
-                {ocrDetected && !ocrRunning && (
-                    <View style={styles.ocrBadge}>
-                        <Text style={styles.ocrBadgeText}>
-                            Auto-detected — confirm or edit below
-                        </Text>
-                    </View>
-                )}
-
                 <View style={styles.dateInputWrap}>
                     <Text style={styles.dateInputLabel}>YYYY-MM-DD</Text>
-                    <Text
+
+                    <TouchableOpacity
                         style={styles.dateInput}
-                        onPress={() => {}} // In production use a DateTimePicker modal
+                        onPress={() => setShowPicker(true)}
                     >
-                        {expiryDate || (
-                            <Text style={{ color: theme.colors.textMuted }}>
-                                e.g. 2026-03-14
-                            </Text>
-                        )}
-                    </Text>
+                        <Text style={{ color: expiryDate ? theme.colors.textPrimary : theme.colors.textMuted }}>
+                            {expiryDate || 'e.g. 2026-03-14'}
+                        </Text>
+                    </TouchableOpacity>
                 </View>
 
-                {/* Notification preview */}
-                {expiryDate && !isNaN(new Date(expiryDate)) && (
+                {showPicker && (
+                    <DateTimePicker
+                        value={expiryDate ? new Date(expiryDate) : new Date()}
+                        mode="date"
+                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                        onChange={onDateChange}
+                        minimumDate={new Date()}
+                    />
+                )}
+
+                {expiryDate && !isNaN(new Date(expiryDate).getTime()) && (
                     <View style={styles.reminderPreview}>
                         <Text style={styles.reminderText}>
-                            Reminders will be set for{' '}
-                            <Text
-                                style={{
-                                    color: theme.colors.amber,
-                                    fontWeight: '600'
-                                }}
-                            >
-                                {(() => {
-                                    const d = new Date(expiryDate);
-                                    d.setDate(d.getDate() - 30);
-                                    return d.toLocaleDateString('en-US', {
-                                        month: 'short',
-                                        day: 'numeric'
-                                    });
-                                })()}
-                            </Text>{' '}
-                            (30 days) and{' '}
-                            <Text
-                                style={{
-                                    color: theme.colors.red,
-                                    fontWeight: '600'
-                                }}
-                            >
-                                {(() => {
-                                    const d = new Date(expiryDate);
-                                    d.setDate(d.getDate() - 10);
-                                    return d.toLocaleDateString('en-US', {
-                                        month: 'short',
-                                        day: 'numeric'
-                                    });
-                                })()}
-                            </Text>{' '}
-                            (10 days) before expiry.
+                            Reminders will be set 30 and 10 days before expiry.
                         </Text>
                     </View>
                 )}
 
-                {/* Save button */}
                 <TouchableOpacity
                     style={[styles.saveBtn, loading && { opacity: 0.5 }]}
                     onPress={handleSave}

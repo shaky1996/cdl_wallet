@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 
 const DOCS_DIR = FileSystem.documentDirectory + 'docs/';
 const ARCHIVE_DIR = FileSystem.documentDirectory + 'archive/';

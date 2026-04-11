@@ -38,7 +38,7 @@ export const scheduleExpiryReminders = async (docType, expiryDateStr) => {
                 body: `Your ${label} expires in 30 days. Time to renew.`,
                 data: { docType }
             },
-            trigger: { date: thirtyDay }
+            trigger: { type: 'date', date: thirtyDay }
         });
     }
 
@@ -50,7 +50,8 @@ export const scheduleExpiryReminders = async (docType, expiryDateStr) => {
                 body: `Don't get pulled off the road. Your ${label} expires in 10 days.`,
                 data: { docType }
             },
-            trigger: { date: tenDay }
+            trigger: { type: 'date', 
+                date: tenDay }
         });
     }
 };
