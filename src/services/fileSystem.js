@@ -42,8 +42,6 @@ export const deleteArchivedFile = async (localUri) => {
     if (info.exists) await FileSystem.deleteAsync(localUri);
 };
 
-
-
 export const deleteDoc = async (docType) => {
     const raw = await AsyncStorage.getItem(DOCS_KEY);
     const docs = raw ? JSON.parse(raw) : {};
@@ -62,9 +60,6 @@ export const deleteDoc = async (docType) => {
 
     return docs;
 };
-
-
-
 
 // Reset file storage
 // export const resetAppData = async () => {

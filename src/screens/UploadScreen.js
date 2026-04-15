@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { Image } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -33,6 +34,47 @@ export default function UploadScreen({ navigation, route }) {
     const [showPicker, setShowPicker] = useState(false);
 
     const { loading, run } = useAsyncError();
+
+    const cropImage = async (uri) => {
+        try {
+            const manipResult = await ImageManipulator.manipulateAsync(
+                uri,
+                [],
+                {
+                    compress: 0.9,
+                    format: ImageManipulator.SaveFormat.JPEG
+                }
+            );
+
+            const { width, height } = manipResult;
+
+            const cropWidth = width * 0.99; 
+            const cropHeight = height * 0.99; 
+
+            const result = await ImageManipulator.manipulateAsync(
+                uri,
+                [
+                    {
+                        crop: {
+                            originX: (width - cropWidth) / 2,
+                            originY: (height - cropHeight) / 2,
+                            width: cropWidth,
+                            height: cropHeight
+                        }
+                    }
+                ],
+                {
+                    compress: 0.9,
+                    format: ImageManipulator.SaveFormat.JPEG
+                }
+            );
+
+            return result.uri;
+        } catch (e) {
+            console.log('Crop failed:', e);
+            return uri;
+        }
+    };
 
     const requestCameraPermission = async () => {
         const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -71,8 +113,8 @@ export default function UploadScreen({ navigation, route }) {
 
         if (!result.canceled && result.assets?.[0]) {
             const uri = result.assets[0].uri;
-            setImageUri(uri);
-            setOcrDetected(false);
+            const cropped = await cropImage(uri);
+            setImageUri(cropped);
         }
     };
 
@@ -82,12 +124,14 @@ export default function UploadScreen({ navigation, route }) {
 
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            quality: 0.9
+            quality: 0.9,
+            allowsEditing: true
         });
 
         if (!result.canceled && result.assets?.[0]) {
             const uri = result.assets[0].uri;
-            setImageUri(uri);
+            const cropped = await cropImage(uri);
+            setImageUri(cropped);
             setOcrDetected(false);
         }
     };
@@ -112,6 +156,8 @@ export default function UploadScreen({ navigation, route }) {
             );
         }
     };
+
+    
 
     const validateExpiryDate = (dateStr) => {
         if (!dateStr.trim()) return 'Please enter the expiry date.';
@@ -191,6 +237,7 @@ export default function UploadScreen({ navigation, route }) {
                     <Image
                         source={{ uri: imageUri }}
                         style={styles.preview}
+                        resizeMode='cover'
                     />
                 ) : (
                     <View style={styles.placeholder}>
@@ -201,13 +248,22 @@ export default function UploadScreen({ navigation, route }) {
                 )}
 
                 <View style={styles.sourceRow}>
-                    <TouchableOpacity style={styles.sourceBtn} onPress={handleCamera}>
+                    <TouchableOpacity
+                        style={styles.sourceBtn}
+                        onPress={handleCamera}
+                    >
                         <Text style={styles.sourceBtnText}>Camera</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.sourceBtn} onPress={handleGallery}>
+                    <TouchableOpacity
+                        style={styles.sourceBtn}
+                        onPress={handleGallery}
+                    >
                         <Text style={styles.sourceBtnText}>Gallery</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.sourceBtn} onPress={handleFilePicker}>
+                    <TouchableOpacity
+                        style={styles.sourceBtn}
+                        onPress={handleFilePicker}
+                    >
                         <Text style={styles.sourceBtnText}>PDF file</Text>
                     </TouchableOpacity>
                 </View>
@@ -223,7 +279,13 @@ export default function UploadScreen({ navigation, route }) {
                         style={styles.dateInput}
                         onPress={() => setShowPicker(true)}
                     >
-                        <Text style={{ color: expiryDate ? theme.colors.textPrimary : theme.colors.textMuted }}>
+                        <Text
+                            style={{
+                                color: expiryDate
+                                    ? theme.colors.textPrimary
+                                    : theme.colors.textMuted
+                            }}
+                        >
                             {expiryDate || 'e.g. 2026-03-14'}
                         </Text>
                     </TouchableOpacity>
@@ -232,7 +294,7 @@ export default function UploadScreen({ navigation, route }) {
                 {showPicker && (
                     <DateTimePicker
                         value={expiryDate ? new Date(expiryDate) : new Date()}
-                        mode="date"
+                        mode='date'
                         display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                         onChange={onDateChange}
                         minimumDate={new Date()}
@@ -296,14 +358,14 @@ const styles = StyleSheet.create({
     },
     preview: {
         width: '100%',
-        height: 200,
+        height: 250,
         borderRadius: theme.radius.md,
         backgroundColor: theme.colors.bgCard,
         marginBottom: theme.spacing.sm
     },
     placeholder: {
         width: '100%',
-        height: 200,
+        height: 250,
         borderRadius: theme.radius.md,
         backgroundColor: theme.colors.bgCard,
         borderWidth: 1.5,
