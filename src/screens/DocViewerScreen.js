@@ -179,7 +179,7 @@ export default function DocViewerScreen({ navigation, route }) {
                                     uri: `data:image/jpeg;base64,${imageBase64}`
                                 }}
                                 style={styles.docImage}
-                                resizeMode='contain'
+                                resizeMode='cover'
                             />
                         </ScrollView>
                     ) : (

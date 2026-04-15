@@ -24,7 +24,7 @@ export const saveDocFile = async (docType, sourceUri) => {
     const ext = sourceUri.split('.').pop().split('?')[0] || 'jpg';
     const dest = DOCS_DIR + `${docType}.${ext}`;
     await FileSystem.copyAsync({ from: sourceUri, to: dest });
-    return dest;
+    return `file://${dest}`;
 };
 
 // Move active doc to archive/ before replacing

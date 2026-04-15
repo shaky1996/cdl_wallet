@@ -14,6 +14,8 @@ import { colors } from '../constants/colors';
 import { getDocs } from '../services/storage';
 import { imageToPdf } from '../services/pdfExport';
 import { DOC_LABELS } from '../constants/docTypes';
+import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
 
 export default function ShareScreen() {
     const [docs, setDocs] = useState({});
@@ -48,8 +50,8 @@ export default function ShareScreen() {
 
             await MailComposer.composeAsync({
                 recipients: [email.trim()],
-                subject: 'CDL Driver Documents',
-                body: 'Please find my documents attached.',
+                subject: 'CDL Wallet - Driver Documents',
+                body: 'Hello, \nPlease find my documents attached.',
                 attachments
             });
         } catch (e) {
