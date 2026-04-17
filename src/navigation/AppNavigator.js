@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { colors } from '../constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 
 import HomeScreen from '../screens/HomeScreen';
 import DocViewerScreen from '../screens/DocViewerScreen';
@@ -17,18 +18,9 @@ const Stack = createStackNavigator();
 function HomeStack() {
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen
-                name='Home'
-                component={HomeScreen}
-            />
-            <Stack.Screen
-                name='DocViewer'
-                component={DocViewerScreen}
-            />
-            <Stack.Screen
-                name='Upload'
-                component={UploadScreen}
-            />
+            <Stack.Screen name='Home' component={HomeScreen} />
+            <Stack.Screen name='DocViewer' component={DocViewerScreen} />
+            <Stack.Screen name='Upload' component={UploadScreen} />
         </Stack.Navigator>
     );
 }
@@ -37,32 +29,44 @@ export default function AppNavigator() {
     return (
         <NavigationContainer>
             <Tab.Navigator
-                screenOptions={{
+                screenOptions={({ route }) => ({
                     headerShown: false,
+
                     tabBarStyle: {
                         backgroundColor: colors.bg,
                         borderTopColor: colors.border
                     },
+
                     tabBarActiveTintColor: colors.accent,
-                    tabBarInactiveTintColor: colors.textMuted
-                }}
+                    tabBarInactiveTintColor: colors.textMuted,
+
+                    tabBarIcon: ({ color, size }) => {
+                        let iconName;
+
+                        if (route.name === 'Wallet') {
+                            iconName = 'wallet-outline';
+                        } else if (route.name === 'Share') {
+                            iconName = 'share-outline';
+                        } else if (route.name === 'Archive') {
+                            iconName = 'archive-outline';
+                        } else if (route.name === 'Settings') {
+                            iconName = 'settings-outline';
+                        }
+
+                        return (
+                            <Ionicons
+                                name={iconName}
+                                size={size}
+                                color={color}
+                            />
+                        );
+                    }
+                })}
             >
-                <Tab.Screen
-                    name='Wallet'
-                    component={HomeStack}
-                />
-                <Tab.Screen
-                    name='Share'
-                    component={ShareScreen}
-                />
-                <Tab.Screen
-                    name='Archive'
-                    component={ArchiveScreen}
-                />
-                <Tab.Screen
-                    name='Settings'
-                    component={SettingsScreen}
-                />
+                <Tab.Screen name='Wallet' component={HomeStack} />
+                <Tab.Screen name='Share' component={ShareScreen} />
+                <Tab.Screen name='Archive' component={ArchiveScreen} />
+                <Tab.Screen name='Settings' component={SettingsScreen} />
             </Tab.Navigator>
         </NavigationContainer>
     );

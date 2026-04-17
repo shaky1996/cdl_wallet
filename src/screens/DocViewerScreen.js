@@ -211,11 +211,7 @@ const closeFullScreen = () => {
                     ) : imageBase64 ? (
                         // ✅ ADDED TOUCHABLE ONLY
                         <TouchableOpacity onPress={openFullScreen}>
-                            <ScrollView
-                                maximumZoomScale={3}
-                                minimumZoomScale={1}
-                                centerContent
-                            >
+                           
                                 <Image
                                     source={{
                                         uri: `data:image/jpeg;base64,${imageBase64}`
@@ -223,7 +219,7 @@ const closeFullScreen = () => {
                                     style={styles.docImage}
                                     resizeMode='cover'
                                 />
-                            </ScrollView>
+                            
                         </TouchableOpacity>
                     ) : (
                         <View style={styles.imagePlaceholder}>
@@ -233,7 +229,7 @@ const closeFullScreen = () => {
                         </View>
                     )}
 
-                    <Text style={styles.zoomHint}>Click for full screen</Text>
+                    <Text style={styles.fullScreenHint}>Click for full screen</Text>
                 </View>
 
                 {/* Info panel */}
@@ -326,7 +322,7 @@ const closeFullScreen = () => {
                 </View>
             </ScrollView>
 
-            {/* ✅ FULLSCREEN MODAL ADDED */}
+            {/*FULLSCREEN MODAL */}
             {isFullScreen && (
     <Modal transparent>
         <Animated.View
@@ -438,7 +434,7 @@ const styles = StyleSheet.create({
         top: 10,
         right: 10
     },
-    zoomHint: {
+    fullScreenHint: {
         position: 'absolute',
         bottom: 8,
         right: 10,

@@ -19,7 +19,7 @@ import * as FileSystem from 'expo-file-system';
 
 export default function ShareScreen() {
     const [docs, setDocs] = useState({});
-    const [selected, setSelected] = useState({ cdl: true, med_card: true });
+    const [selected, setSelected] = useState({ cdl: false, med_card: false });
     const [email, setEmail] = useState('');
     const [sending, setSending] = useState(false);
 
