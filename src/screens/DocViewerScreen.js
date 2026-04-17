@@ -8,7 +8,9 @@ import {
     ScrollView,
     Alert,
     ActivityIndicator,
-    Image
+    Image,
+    Modal,
+    Animated
 } from 'react-native';
 import { theme } from '../styles/theme';
 import { common } from '../styles/common';
@@ -36,6 +38,11 @@ export default function DocViewerScreen({ navigation, route }) {
     const [side, setSide] = useState('front');
     const [loadingImage, setLoadingImage] = useState(true);
     const { loading, run } = useAsyncError();
+
+    // ✅ ADDED
+    const [isFullScreen, setIsFullScreen] = useState(false);
+const opacity = useState(new Animated.Value(0))[0];
+const scale = useState(new Animated.Value(0.95))[0];
 
     useEffect(() => {
         loadDoc();
@@ -95,6 +102,39 @@ export default function DocViewerScreen({ navigation, route }) {
     const handleShare = () => {
         navigation.navigate('Share');
     };
+    const openFullScreen = () => {
+    setIsFullScreen(true);
+
+    Animated.parallel([
+        Animated.timing(opacity, {
+            toValue: 1,
+            duration: 180,
+            useNativeDriver: true
+        }),
+        Animated.spring(scale, {
+            toValue: 1,
+            friction: 7,
+            useNativeDriver: true
+        })
+    ]).start();
+};
+
+const closeFullScreen = () => {
+    Animated.parallel([
+        Animated.timing(opacity, {
+            toValue: 0,
+            duration: 150,
+            useNativeDriver: true
+        }),
+        Animated.timing(scale, {
+            toValue: 0.95,
+            duration: 150,
+            useNativeDriver: true
+        })
+    ]).start(() => {
+        setIsFullScreen(false);
+    });
+};
 
     if (!doc) {
         return (
@@ -169,19 +209,22 @@ export default function DocViewerScreen({ navigation, route }) {
                             <ActivityIndicator color={theme.colors.accent} />
                         </View>
                     ) : imageBase64 ? (
-                        <ScrollView
-                            maximumZoomScale={3}
-                            minimumZoomScale={1}
-                            centerContent
-                        >
-                            <Image
-                                source={{
-                                    uri: `data:image/jpeg;base64,${imageBase64}`
-                                }}
-                                style={styles.docImage}
-                                resizeMode='cover'
-                            />
-                        </ScrollView>
+                        // ✅ ADDED TOUCHABLE ONLY
+                        <TouchableOpacity onPress={openFullScreen}>
+                            <ScrollView
+                                maximumZoomScale={3}
+                                minimumZoomScale={1}
+                                centerContent
+                            >
+                                <Image
+                                    source={{
+                                        uri: `data:image/jpeg;base64,${imageBase64}`
+                                    }}
+                                    style={styles.docImage}
+                                    resizeMode='cover'
+                                />
+                            </ScrollView>
+                        </TouchableOpacity>
                     ) : (
                         <View style={styles.imagePlaceholder}>
                             <Text style={styles.imageError}>
@@ -190,9 +233,7 @@ export default function DocViewerScreen({ navigation, route }) {
                         </View>
                     )}
 
-                    
-
-                    <Text style={styles.zoomHint}>Pinch to zoom</Text>
+                    <Text style={styles.zoomHint}>Click for full screen</Text>
                 </View>
 
                 {/* Info panel */}
@@ -201,12 +242,14 @@ export default function DocViewerScreen({ navigation, route }) {
                         <Text style={styles.infoLabel}>Status</Text>
                         <StatusBadge status={status} />
                     </View>
+
                     <View style={[styles.infoRow, styles.infoDivider]}>
                         <Text style={styles.infoLabel}>Expires</Text>
                         <Text style={styles.infoVal}>
                             {formatDate(doc.expiryDate)}
                         </Text>
                     </View>
+
                     <View style={[styles.infoRow, styles.infoDivider]}>
                         <Text style={styles.infoLabel}>Days remaining</Text>
                         <Text
@@ -227,6 +270,7 @@ export default function DocViewerScreen({ navigation, route }) {
                                 : 'Expired'}
                         </Text>
                     </View>
+
                     <View
                         style={[
                             styles.infoRow,
@@ -254,12 +298,14 @@ export default function DocViewerScreen({ navigation, route }) {
                     >
                         <Text style={styles.actionBtnText}>Replace</Text>
                     </TouchableOpacity>
+
                     <TouchableOpacity
                         style={[styles.actionBtn, styles.actionBtnPrimary]}
                         onPress={handleShare}
                     >
                         <Text style={styles.actionBtnTextPrimary}>Share</Text>
                     </TouchableOpacity>
+
                     <TouchableOpacity
                         style={[
                             styles.actionBtn,
@@ -273,13 +319,47 @@ export default function DocViewerScreen({ navigation, route }) {
                                 styles.actionBtnText,
                                 { color: theme.colors.red }
                             ]}
-                            
                         >
                             Delete
                         </Text>
                     </TouchableOpacity>
                 </View>
             </ScrollView>
+
+            {/* ✅ FULLSCREEN MODAL ADDED */}
+            {isFullScreen && (
+    <Modal transparent>
+        <Animated.View
+            style={[
+                {
+                    flex: 1,
+                    backgroundColor: 'black',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    opacity
+                }
+            ]}
+        >
+            <TouchableOpacity
+                style={{ flex: 1, width: '100%' }}
+                activeOpacity={1}
+                onPress={closeFullScreen}
+            >
+                <Animated.Image
+                    source={{
+                        uri: `data:image/jpeg;base64,${imageBase64}`
+                    }}
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        transform: [{ scale }]
+                    }}
+                    resizeMode="contain"
+                />
+            </TouchableOpacity>
+        </Animated.View>
+    </Modal>
+)}
         </SafeAreaView>
     );
 }
@@ -362,7 +442,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 8,
         right: 10,
-        color: theme.colors.textMuted,
+        color: 'rgba(255,255,255,0.8)',
         fontSize: 10,
         backgroundColor: 'rgba(0,0,0,0.4)',
         paddingHorizontal: 8,
