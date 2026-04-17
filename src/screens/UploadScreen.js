@@ -32,8 +32,16 @@ export default function UploadScreen({ navigation, route }) {
     const [expiryDate, setExpiryDate] = useState('');
     const [ocrDetected, setOcrDetected] = useState(false);
     const [showPicker, setShowPicker] = useState(false);
+    const [tempDate, setTempDate] = useState(new Date());
 
     const { loading, run } = useAsyncError();
+
+    const formatLocalDate = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${month}-${day}-${year}`;
+    };
 
     const cropImage = async (uri) => {
         try {
@@ -48,8 +56,8 @@ export default function UploadScreen({ navigation, route }) {
 
             const { width, height } = manipResult;
 
-            const cropWidth = width * 0.99; 
-            const cropHeight = height * 0.99; 
+            const cropWidth = width * 0.99;
+            const cropHeight = height * 0.99;
 
             const result = await ImageManipulator.manipulateAsync(
                 uri,
@@ -157,23 +165,17 @@ export default function UploadScreen({ navigation, route }) {
         }
     };
 
-    
-
     const validateExpiryDate = (dateStr) => {
         if (!dateStr.trim()) return 'Please enter the expiry date.';
         const parsed = new Date(dateStr);
         if (isNaN(parsed.getTime()))
-            return 'Invalid date format. Use YYYY-MM-DD.';
+            return 'Invalid date format. Use MM-DD-YYYY.';
         return null;
     };
 
     const onDateChange = (event, selectedDate) => {
-        setShowPicker(false);
-
         if (selectedDate) {
-            const formatted = selectedDate.toISOString().split('T')[0];
-            setExpiryDate(formatted);
-            setOcrDetected(false);
+            setTempDate(selectedDate); // don't close, just store temp
         }
     };
 
@@ -205,11 +207,9 @@ export default function UploadScreen({ navigation, route }) {
             },
             {
                 onSuccess: () => {
-                    Alert.alert(
-                        'Saved',
-                        `Your ${docLabel} has been saved.`,
-                        [{ text: 'OK', onPress: () => navigation.goBack() }]
-                    );
+                    Alert.alert('Saved', `Your ${docLabel} has been saved.`, [
+                        { text: 'OK', onPress: () => navigation.goBack() }
+                    ]);
                 },
                 errorMessage: `Could not save your ${docLabel}. Please try again.`
             }
@@ -272,13 +272,13 @@ export default function UploadScreen({ navigation, route }) {
                     Expiry date
                 </Text>
 
-                <View style={styles.dateInputWrap}>
-                    <Text style={styles.dateInputLabel}>YYYY-MM-DD</Text>
+                <TouchableOpacity
+                    style={styles.dateInput}
+                    onPress={() => setShowPicker(true)}
+                >
+                    <View style={styles.dateInputWrap}>
+                        <Text style={styles.dateInputLabel}>MM-DD-YYYY</Text>
 
-                    <TouchableOpacity
-                        style={styles.dateInput}
-                        onPress={() => setShowPicker(true)}
-                    >
                         <Text
                             style={{
                                 color: expiryDate
@@ -288,18 +288,46 @@ export default function UploadScreen({ navigation, route }) {
                         >
                             {expiryDate || 'e.g. 2026-03-14'}
                         </Text>
-                    </TouchableOpacity>
-                </View>
+                    </View>
 
-                {showPicker && (
-                    <DateTimePicker
-                        value={expiryDate ? new Date(expiryDate) : new Date()}
-                        mode='date'
-                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                        onChange={onDateChange}
-                        minimumDate={new Date()}
-                    />
-                )}
+                    {showPicker && (
+                        <View style={styles.pickerContainer}>
+                            {/* HEADER ROW */}
+                            <View style={styles.pickerHeader}>
+                                <Text style={styles.pickerTitle}>
+                                    Select date
+                                </Text>
+
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        const formatted =
+                                            formatLocalDate(tempDate);
+                                        setExpiryDate(formatted);
+                                        setShowPicker(false);
+                                        setOcrDetected(false);
+                                    }}
+                                >
+                                    <Text style={styles.doneTopRight}>
+                                        Done
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            {/* CENTERED PICKER */}
+                            <View style={styles.pickerBody}>
+                                <DateTimePicker
+                                    value={tempDate}
+                                    mode='date'
+                                    display='spinner'
+                                    onChange={(e, date) => {
+                                        if (date) setTempDate(date);
+                                    }}
+                                    minimumDate={new Date()}
+                                />
+                            </View>
+                        </View>
+                    )}
+                </TouchableOpacity>
 
                 {expiryDate && !isNaN(new Date(expiryDate).getTime()) && (
                     <View style={styles.reminderPreview}>
@@ -463,5 +491,30 @@ const styles = StyleSheet.create({
         color: '#1a1200',
         fontSize: theme.font.lg,
         fontWeight: '600'
+    },
+
+    pickerHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+
+        marginTop: 10
+    },
+
+    pickerBody: {
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+
+    pickerTitle: {
+        color: theme.colors.textMuted,
+        fontSize: 13,
+        fontWeight: '500'
+    },
+
+    doneTopRight: {
+        color: theme.colors.accent,
+        fontSize: 16,
+        fontWeight: '700'
     }
 });
