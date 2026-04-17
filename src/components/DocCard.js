@@ -16,7 +16,7 @@ const STATUS_CONFIG = {
         color: colors.amber,
         border: colors.amber
     },
-    critical: { label: '10 days left', color: colors.red, border: colors.red },
+    critical: { label: 'Almost Expired', color: colors.red, border: colors.red },
     expired: { label: 'Expired', color: colors.red, border: colors.red }
 };
 
