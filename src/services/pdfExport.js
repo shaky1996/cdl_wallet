@@ -2,7 +2,6 @@ import * as Print from 'expo-print';
 import * as FileSystem from 'expo-file-system';
 
 const toBase64 = async (uri) => {
-    const cleanUri = uri.startsWith('file://') ? uri : `file://${uri}`;
     return await FileSystem.readAsStringAsync(cleanUri, {
         encoding: FileSystem.EncodingType.Base64
     });
