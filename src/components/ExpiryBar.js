@@ -6,9 +6,11 @@ import { validityPercent, daysUntil, getStatus } from '../utils/dateHelpers';
 export default function ExpiryBar({ uploadedAt, expiryDate }) {
     const status = getStatus(expiryDate);
     const days = daysUntil(expiryDate);
-    const pct = uploadedAt
-        ? validityPercent(uploadedAt, expiryDate)
-        : Math.max(0, Math.min(100, (days / 365) * 100));
+    const MAX_DAYS = 30; // one month
+    const pct = Math.max(
+    0,
+    Math.min(100, (days / MAX_DAYS) * 100)
+    );
 
     const colorMap = {
         valid: theme.colors.green,

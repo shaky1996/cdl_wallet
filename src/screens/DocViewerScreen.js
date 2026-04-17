@@ -190,10 +190,7 @@ export default function DocViewerScreen({ navigation, route }) {
                         </View>
                     )}
 
-                    <StatusBadge
-                        status={status}
-                        style={styles.statusOverlay}
-                    />
+                    
 
                     <Text style={styles.zoomHint}>Pinch to zoom</Text>
                 </View>
@@ -236,7 +233,7 @@ export default function DocViewerScreen({ navigation, route }) {
                             styles.infoDivider,
                             {
                                 flexDirection: 'column',
-                                alignItems: 'flex-start',
+                                alignItems: 'stretch',
                                 gap: 8
                             }
                         ]}

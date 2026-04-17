@@ -8,6 +8,7 @@ import {
     formatDate,
     validityPercent
 } from '../utils/dateHelpers';
+import ExpiryBar from './ExpiryBar';
 
 const STATUS_CONFIG = {
     valid: { label: 'Valid', color: colors.green, border: colors.green },
@@ -16,7 +17,7 @@ const STATUS_CONFIG = {
         color: colors.amber,
         border: colors.amber
     },
-    critical: { label: 'Almost Expired', color: colors.red, border: colors.red },
+    critical: { label: 'Almost expired', color: colors.red, border: colors.red },
     expired: { label: 'Expired', color: colors.red, border: colors.red }
 };
 
@@ -73,11 +74,9 @@ export default function DocCard({ docType, doc, onPress }) {
             </View>
 
             <View style={styles.progressBg}>
-                <View
-                    style={[
-                        styles.progressFill,
-                        { width: `${pct}%`, backgroundColor: cfg.color }
-                    ]}
+               <ExpiryBar
+                    uploadedAt={doc.uploadedAt}
+                    expiryDate={doc.expiryDate}
                 />
             </View>
 

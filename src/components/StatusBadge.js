@@ -16,7 +16,7 @@ const CONFIG = {
         text: theme.colors.amber
     },
     critical: {
-        label: '10 days left',
+        label: 'Almost expired',
         bg: theme.colors.red + '33',
         border: theme.colors.red,
         text: theme.colors.red
