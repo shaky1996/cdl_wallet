@@ -23,6 +23,7 @@ import { saveDoc } from '../services/storage';
 import { scheduleExpiryReminders } from '../services/notifications';
 import { useAsyncError } from '../hooks/useAsyncError';
 import { DOC_LABELS } from '../constants/docTypes';
+import BackButtonBar from '../components/BackButtonBar';
 
 export default function UploadScreen({ navigation, route }) {
     const { docType } = route.params;

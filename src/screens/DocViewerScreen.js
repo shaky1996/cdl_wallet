@@ -28,6 +28,7 @@ import { DOC_LABELS } from '../constants/docTypes';
 import StatusBadge from '../components/StatusBadge';
 import ExpiryBar from '../components/ExpiryBar';
 import { useAsyncError } from '../hooks/useAsyncError';
+import { colors } from '../constants/colors';
 
 export default function DocViewerScreen({ navigation, route }) {
     const { docType } = route.params;
@@ -152,9 +153,10 @@ const closeFullScreen = () => {
     return (
         <SafeAreaView style={common.safeArea}>
             {/* Top bar */}
+            
             <View style={styles.topBar}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Text style={styles.backBtn}>‹ Wallet</Text>
+                    <Text style={styles.backBtn}>‹ Back</Text>
                 </TouchableOpacity>
                 <Text style={styles.screenTitle}>{docLabel}</Text>
                 <View style={{ width: 60 }} />
@@ -370,16 +372,20 @@ const styles = StyleSheet.create({
         paddingBottom: theme.spacing.md,
         backgroundColor: theme.colors.bg
     },
+    header: {
+        paddingHorizontal: 20,
+        paddingTop: 10,
+        paddingBottom: 16,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
     backBtn: {
         color: theme.colors.accent,
         fontSize: theme.font.lg,
         width: 60
     },
-    screenTitle: {
-        color: theme.colors.textPrimary,
-        fontSize: theme.font.lg,
-        fontWeight: '500'
-    },
+    screenTitle: { color: colors.accent, fontSize: 24, fontWeight: '600' },
     scrollContent: {
         paddingBottom: 40,
         gap: theme.spacing.md

@@ -16,6 +16,7 @@ import { getArchive, deleteArchivedDoc } from '../services/storage';
 import { formatDate } from '../utils/dateHelpers';
 import { DOC_LABELS } from '../constants/docTypes';
 import { useAsyncError } from '../hooks/useAsyncError';
+import Header from '../components/Header';
 
 export default function ArchiveScreen({ navigation }) {
     const [archive, setArchive] = useState([]);
@@ -129,7 +130,8 @@ export default function ArchiveScreen({ navigation }) {
 
     return (
         <SafeAreaView style={common.safeArea}>
-            <Text style={styles.screenTitle}>Archive</Text>
+            <Header subtitle='Archive' />
+            
 
             {archive.length === 0 ? (
                 <View style={styles.emptyState}>

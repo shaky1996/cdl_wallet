@@ -16,6 +16,7 @@ import { imageToPdf } from '../services/pdfExport';
 import { DOC_LABELS } from '../constants/docTypes';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
+import Header from '../components/Header';
 
 export default function ShareScreen() {
     const [docs, setDocs] = useState({});
@@ -63,7 +64,7 @@ export default function ShareScreen() {
 
     return (
         <SafeAreaView style={styles.safe}>
-            <Text style={styles.title}>Share with employer</Text>
+            <Header subtitle='Share documents' />
             <View style={styles.body}>
                 <Text style={styles.label}>Select documents</Text>
                 {['cdl', 'med_card'].map((type) => (

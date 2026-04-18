@@ -16,6 +16,7 @@ import { common } from '../styles/common';
 import { exportAllData } from '../services/exportData';
 import { sweepOrphanFiles } from '../services/storage';
 import { useAsyncError } from '../hooks/useAsyncError';
+import Header from '../components/Header';
 
 const BIOMETRICS_PREF_KEY = 'cdl_biometrics_enabled';
 
@@ -97,7 +98,7 @@ export default function SettingsScreen() {
 
     return (
         <SafeAreaView style={common.safeArea}>
-            <Text style={styles.screenTitle}>Settings</Text>
+            <Header subtitle='Settings' />
 
             <ScrollView
                 style={styles.body}
