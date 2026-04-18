@@ -33,6 +33,7 @@ export default function UploadScreen({ navigation, route }) {
     const [ocrDetected, setOcrDetected] = useState(false);
     const [showPicker, setShowPicker] = useState(false);
     const [tempDate, setTempDate] = useState(new Date());
+    const isDisabled = loading || !imageUri;
 
     const { loading, run } = useAsyncError();
 
@@ -281,60 +282,63 @@ export default function UploadScreen({ navigation, route }) {
                     style={styles.dateInput}
                     onPress={() => setShowPicker(true)}
                 >
-                <View style={styles.dateInputWrap}>
-                    <Text style={styles.dateInputLabel}>YYYY-MM-DD</Text>
+                    <View style={styles.dateInputWrap}>
+                        <Text style={styles.dateInputLabel}>YYYY-MM-DD</Text>
 
-                    <TouchableOpacity
-                        style={styles.dateInput}
-                        onPress={() => setShowPicker(true)}
-                    >
-                        <Text
-                            style={{
-                                color: expiryDate
-                                    ? theme.colors.textPrimary
-                                    : theme.colors.textMuted
-                            }}
+                        <TouchableOpacity
+                            style={styles.dateInput}
+                            onPress={() => setShowPicker(true)}
                         >
-                            {expiryDate || 'e.g. 2026-03-14'}
-                        </Text>
-                    </TouchableOpacity>
-                </View>
+                            <Text
+                                style={{
+                                    color: expiryDate
+                                        ? theme.colors.textPrimary
+                                        : theme.colors.textMuted
+                                }}
+                            >
+                                {expiryDate || 'e.g. 2026-03-14'}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
 
-                {showPicker && (
-    <View style={styles.pickerContainer}>
-        
-        {/* HEADER ROW */}
-        <View style={styles.pickerHeader}>
-            <Text style={styles.pickerTitle}>Select date</Text>
+                    {showPicker && (
+                        <View style={styles.pickerContainer}>
+                            {/* HEADER ROW */}
+                            <View style={styles.pickerHeader}>
+                                <Text style={styles.pickerTitle}>
+                                    Select date
+                                </Text>
 
-            <TouchableOpacity
-                onPress={() => {
-                    const formatted = formatLocalDate(tempDate);
-                    setExpiryDate(formatted);
-                    setShowPicker(false);
-                    setOcrDetected(false);
-                }}
-            >
-                <Text style={styles.doneTopRight}>Done</Text>
-            </TouchableOpacity>
-        </View>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        const formatted =
+                                            formatLocalDate(tempDate);
+                                        setExpiryDate(formatted);
+                                        setShowPicker(false);
+                                        setOcrDetected(false);
+                                    }}
+                                >
+                                    <Text style={styles.doneTopRight}>
+                                        Done
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
 
-        {/* CENTERED PICKER */}
-        <View style={styles.pickerBody}>
-            <DateTimePicker
-                value={tempDate}
-                mode="date"
-                display="spinner"
-                onChange={(e, date) => {
-                    if (date) setTempDate(date);
-                }}
-                minimumDate={new Date()}
-            />
-        </View>
-
-    </View>
-)}
-</TouchableOpacity>
+                            {/* CENTERED PICKER */}
+                            <View style={styles.pickerBody}>
+                                <DateTimePicker
+                                    value={tempDate}
+                                    mode='date'
+                                    display='spinner'
+                                    onChange={(e, date) => {
+                                        if (date) setTempDate(date);
+                                    }}
+                                    minimumDate={new Date()}
+                                />
+                            </View>
+                        </View>
+                    )}
+                </TouchableOpacity>
 
                 {expiryDate && !isNaN(new Date(expiryDate).getTime()) && (
                     <View style={styles.reminderPreview}>
@@ -345,9 +349,12 @@ export default function UploadScreen({ navigation, route }) {
                 )}
 
                 <TouchableOpacity
-                    style={[styles.saveBtn, loading && { opacity: 0.5 }]}
+                    style={[
+                        styles.saveBtn,
+                        isDisabled && { opacity: 0.5, backgroundColor: '#ccc' }
+                    ]}
                     onPress={handleSave}
-                    disabled={loading}
+                    disabled={isDisabled}
                 >
                     {loading ? (
                         <ActivityIndicator color='#1a1200' />
@@ -527,7 +534,7 @@ pickerTitle: {
 
 doneTopRight: {
     color: theme.colors.accent,
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: '700'
 }
 });

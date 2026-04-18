@@ -39,7 +39,7 @@ export default function DocViewerScreen({ navigation, route }) {
     const [loadingImage, setLoadingImage] = useState(true);
     const { loading, run } = useAsyncError();
 
-    // ✅ ADDED
+    // ADDED
     const [isFullScreen, setIsFullScreen] = useState(false);
 const opacity = useState(new Animated.Value(0))[0];
 const scale = useState(new Animated.Value(0.95))[0];
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
     },
     backBtn: {
         color: theme.colors.accent,
-        fontSize: theme.font.base,
+        fontSize: theme.font.lg,
         width: 60
     },
     screenTitle: {

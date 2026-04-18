@@ -4,6 +4,6 @@ export const DOC_TYPES = {
 };
 
 export const DOC_LABELS = {
-    cdl: 'CDL — Class A',
+    cdl: 'CDL',
     med_card: 'Med Card'
 };
