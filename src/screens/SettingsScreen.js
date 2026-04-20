@@ -222,7 +222,7 @@ export default function SettingsScreen() {
                 </TouchableOpacity>
 
                 <Text style={styles.footer}>
-                    CDL Wallet · Your documents never leave your phone
+                    CDL Wallet
                 </Text>
             </ScrollView>
         </SafeAreaView>

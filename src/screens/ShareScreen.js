@@ -62,6 +62,28 @@ export default function ShareScreen() {
         }
     };
 
+    // ✅ NEW: universal share handler
+    const handleShare = async () => {
+        const chosenTypes = Object.keys(selected).filter(
+            (t) => selected[t] && docs[t]
+        );
+        if (!chosenTypes.length)
+            return Alert.alert('Select at least one document');
+
+        try {
+            const attachments = await Promise.all(
+                chosenTypes.map((t) =>
+                    imageToPdf(docs[t].localUri, DOC_LABELS[t])
+                )
+            );
+
+            // Share first file (most apps only accept one)
+            await Sharing.shareAsync(attachments[0]);
+        } catch (e) {
+            Alert.alert('Error', 'Could not open share menu.');
+        }
+    };
+
     return (
         <SafeAreaView style={styles.safe}>
             <Header subtitle='Share documents' />
@@ -124,14 +146,23 @@ export default function ShareScreen() {
                     leave your phone — email is sent from your own mail app.
                 </Text>
 
+                {/* EMAIL BUTTON */}
                 <TouchableOpacity
                     style={[styles.sendBtn, sending && { opacity: 0.5 }]}
                     onPress={handleSend}
                     disabled={sending}
                 >
                     <Text style={styles.sendBtnText}>
-                        {sending ? 'Preparing...' : 'Send documents ›'}
+                        {sending ? 'Preparing...' : 'Email documents ›'}
                     </Text>
+                </TouchableOpacity>
+
+                {/* SHARE BUTTON */}
+                <TouchableOpacity
+                    style={[styles.sendBtn]}
+                    onPress={handleShare}
+                >
+                    <Text style={styles.sendBtnText}>Share documents ›</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
@@ -217,5 +248,21 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 8
     },
-    sendBtnText: { color: '#1a1200', fontSize: 15, fontWeight: '600' }
+    sendBtnText: { color: '#1a1200', fontSize: 15, fontWeight: '600' },
+
+    
+    shareBtn: {
+        backgroundColor: colors.bgCard,
+        borderRadius: 12,
+        padding: 16,
+        alignItems: 'center',
+        marginTop: 4,
+        borderWidth: 1,
+        borderColor: colors.border
+    },
+    shareBtnText: {
+        color: colors.accent,
+        fontSize: 15,
+        fontWeight: '600'
+    }
 });
