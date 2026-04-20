@@ -29,6 +29,8 @@ import StatusBadge from '../components/StatusBadge';
 import ExpiryBar from '../components/ExpiryBar';
 import { useAsyncError } from '../hooks/useAsyncError';
 import { colors } from '../constants/colors';
+import BackButtonBar from '../components/BackButtonBar';
+
 
 export default function DocViewerScreen({ navigation, route }) {
     const { docType } = route.params;
@@ -154,13 +156,10 @@ const closeFullScreen = () => {
         <SafeAreaView style={common.safeArea}>
             {/* Top bar */}
             
-            <View style={styles.topBar}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Text style={styles.backBtn}>‹ Back</Text>
-                </TouchableOpacity>
-                <Text style={styles.screenTitle}>{docLabel}</Text>
-                <View style={{ width: 60 }} />
-            </View>
+           <BackButtonBar
+                           title={docLabel}
+                           onBack={() => navigation.goBack()}
+                       />
 
             <ScrollView
                 style={common.screenBody}
@@ -363,28 +362,28 @@ const closeFullScreen = () => {
 }
 
 const styles = StyleSheet.create({
-    topBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: theme.spacing.lg,
-        paddingTop: theme.spacing.sm,
-        paddingBottom: theme.spacing.md,
-        backgroundColor: theme.colors.bg
-    },
-    header: {
-        paddingHorizontal: 20,
-        paddingTop: 10,
-        paddingBottom: 16,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-    },
-    backBtn: {
-        color: theme.colors.accent,
-        fontSize: theme.font.lg,
-        width: 60
-    },
+    // topBar: {
+    //     flexDirection: 'row',
+    //     alignItems: 'center',
+    //     justifyContent: 'space-between',
+    //     paddingHorizontal: theme.spacing.lg,
+    //     paddingTop: theme.spacing.sm,
+    //     paddingBottom: theme.spacing.md,
+    //     backgroundColor: theme.colors.bg
+    // },
+    // header: {
+    //     paddingHorizontal: 20,
+    //     paddingTop: 10,
+    //     paddingBottom: 16,
+    //     flexDirection: 'row',
+    //     justifyContent: 'space-between',
+    //     alignItems: 'center'
+    // },
+    // backBtn: {
+    //     color: theme.colors.accent,
+    //     fontSize: theme.font.lg,
+    //     width: 60
+    // },
     screenTitle: { color: colors.accent, fontSize: 24, fontWeight: '600' },
     scrollContent: {
         paddingBottom: 40,

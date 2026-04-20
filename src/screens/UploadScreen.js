@@ -225,13 +225,10 @@ export default function UploadScreen({ navigation, route }) {
 
     return (
         <SafeAreaView style={common.safeArea}>
-            <View style={styles.topBar}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Text style={styles.backBtn}>‹ Back</Text>
-                </TouchableOpacity>
-                <Text style={styles.screenTitle}>Upload {docLabel}</Text>
-                <View style={{ width: 60 }} />
-            </View>
+            <BackButtonBar
+                title={`Upload ${docLabel}`}
+                onBack={() => navigation.goBack()}
+            />
 
             <ScrollView
                 style={common.screenBody}
@@ -369,25 +366,7 @@ export default function UploadScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-    topBar: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: theme.spacing.lg,
-        paddingTop: theme.spacing.sm,
-        paddingBottom: theme.spacing.md,
-        backgroundColor: theme.colors.bg
-    },
-    backBtn: {
-        color: theme.colors.accent,
-        fontSize: theme.font.base,
-        width: 60
-    },
-    screenTitle: {
-        color: theme.colors.textPrimary,
-        fontSize: theme.font.lg,
-        fontWeight: '500'
-    },
+    
     scrollContent: {
         paddingBottom: 40
     },

@@ -1,21 +1,27 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { theme } from '../styles/theme';
+import { colors } from '../constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function BackButtonBar({ title, onBack, rightComponent }) {
     return (
-        <View style={styles.topBar}>
+        <View style={styles.header}>
             {/* LEFT */}
             <TouchableOpacity
                 onPress={onBack}
                 style={styles.side}
             >
-                <Text style={styles.backBtn}>‹ Back</Text>
+                <Ionicons
+                    name={'chevron-back-outline'}
+                    style={styles.backIcon}
+                />
+                <Text style={styles.backBtn}>Back</Text>
             </TouchableOpacity>
 
             {/* CENTER */}
             <Text
-                style={styles.screenTitle}
+                style={styles.title}
                 numberOfLines={1}
             >
                 {title}
@@ -28,26 +34,38 @@ export default function BackButtonBar({ title, onBack, rightComponent }) {
 }
 
 const styles = StyleSheet.create({
-    topBar: {
+    header: {
+        paddingHorizontal: 20,
+        paddingTop: 10,
+        paddingBottom: 16,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingVertical: 10
+        justifyContent: 'space-between'
     },
+
+    // keeps title perfectly centered
     side: {
-        width: 70,
-        justifyContent: 'center'
+        width: 80, // slightly wider to fit icon + text
+        flexDirection: 'row',
+        alignItems: 'center'
     },
+
     backBtn: {
         fontSize: 16,
-        color: theme.colors.text
+        color: colors.accent,
+        fontWeight: '600'
     },
-    screenTitle: {
+    backIcon: {
+        fontSize: 28,
+        color: colors.accent,
+        fontWeight: '600'
+    },
+
+    title: {
+        flex: 1,
+        textAlign: 'center',
         fontSize: 18,
         fontWeight: '600',
-        color: theme.colors.text,
-        textAlign: 'center',
-        flex: 1
+        color: colors.textPrimary
     }
 });
