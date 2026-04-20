@@ -67,38 +67,44 @@ export default function ShareScreen() {
             <Header subtitle='Share documents' />
             <View style={styles.body}>
                 <Text style={styles.label}>Select documents</Text>
-                {['cdl', 'med_card'].map((type) => (
-                    <TouchableOpacity
-                        key={type}
-                        style={[
-                            styles.docRow,
-                            selected[type] && styles.docRowSelected
-                        ]}
-                        onPress={() => toggle(type)}
-                    >
-                        <View
+                {['cdl', 'med_card'].map((type) => {
+                    const isAvailable = !!docs[type];
+
+                    return (
+                        <TouchableOpacity
+                            key={type}
                             style={[
-                                styles.check,
-                                selected[type] && styles.checkOn
+                                styles.docRow,
+                                selected[type] && styles.docRowSelected,
+                                !isAvailable && styles.docRowDisabled
                             ]}
+                            onPress={() => isAvailable && toggle(type)}
+                            disabled={!isAvailable}
                         >
-                            {selected[type] && (
-                                <Text style={styles.checkMark}>✓</Text>
-                            )}
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <Text style={styles.docName}>
-                                {DOC_LABELS[type]}
-                            </Text>
-                            {docs[type] && (
-                                <Text style={styles.docSub}>
-                                    Expires {docs[type].expiryDate}
+                            <View
+                                style={[
+                                    styles.check,
+                                    selected[type] && styles.checkOn
+                                ]}
+                            >
+                                {selected[type] && (
+                                    <Text style={styles.checkMark}>✓</Text>
+                                )}
+                            </View>
+                            <View style={{ flex: 1 }}>
+                                <Text style={styles.docName}>
+                                    {DOC_LABELS[type]}
                                 </Text>
-                            )}
-                        </View>
-                        <Text style={styles.pdfBadge}>PDF</Text>
-                    </TouchableOpacity>
-                ))}
+                                <Text style={styles.docSub}>
+                                    {docs[type]
+                                        ? `Expires ${docs[type].expiryDate}`
+                                        : 'Not uploaded'}
+                                </Text>
+                            </View>
+                            <Text style={styles.pdfBadge}>PDF</Text>
+                        </TouchableOpacity>
+                    );
+                })}
 
                 <Text style={[styles.label, { marginTop: 16 }]}>
                     Employer email
@@ -160,6 +166,9 @@ const styles = StyleSheet.create({
         borderColor: colors.border
     },
     docRowSelected: { borderColor: colors.accent },
+    docRowDisabled: {
+        opacity: 0.4
+    },
     check: {
         width: 22,
         height: 22,

@@ -12,6 +12,8 @@ import { colors } from '../constants/colors';
 import { getDocs } from '../services/storage';
 import { getStatus, daysUntil, formatDate } from '../utils/dateHelpers';
 import DocCard from '../components/DocCard';
+import { Ionicons } from '@expo/vector-icons';
+import Header from '../components/Header';
 
 export default function HomeScreen({ navigation }) {
     const [docs, setDocs] = React.useState({});
@@ -29,12 +31,7 @@ export default function HomeScreen({ navigation }) {
 
     return (
         <SafeAreaView style={styles.safe}>
-            <View style={styles.header}>
-                <View>
-                    <Text style={styles.appName}>CDL Wallet</Text>
-                    <Text style={styles.headerSub}>Stay road-ready</Text>
-                </View>
-            </View>
+            <Header subtitle='Stay road ready' />
 
             <ScrollView
                 style={styles.body}
@@ -75,7 +72,7 @@ export default function HomeScreen({ navigation }) {
                     onPress={() => navigation.navigate('Share')}
                 >
                     <Text style={styles.shareBtnText}>
-                        Share with employer ›
+                        Share your documents ›
                     </Text>
                 </TouchableOpacity>
             </ScrollView>

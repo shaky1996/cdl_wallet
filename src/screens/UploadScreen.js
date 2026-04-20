@@ -357,7 +357,7 @@ export default function UploadScreen({ navigation, route }) {
                     {loading ? (
                         <ActivityIndicator color='#1a1200' />
                     ) : (
-                        <Text style={styles.saveBtnText}>Save document ›</Text>
+                        <Text style={styles.saveBtnText}>Save document</Text>
                     )}
                 </TouchableOpacity>
             </ScrollView>
