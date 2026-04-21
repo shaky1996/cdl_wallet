@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { colors } from '../constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -12,15 +12,32 @@ import ShareScreen from '../screens/ShareScreen';
 import ArchiveScreen from '../screens/ArchiveScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
+
 const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator();
+const Stack = createNativeStackNavigator();
 
 function HomeStack() {
     return (
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name='Home' component={HomeScreen} />
-            <Stack.Screen name='DocViewer' component={DocViewerScreen} />
-            <Stack.Screen name='Upload' component={UploadScreen} />
+        <Stack.Navigator
+            screenOptions={{
+                animation: 'slide_from_right',
+                
+                gestureEnabled: true,
+                headerShown: false
+            }}
+        >
+            <Stack.Screen
+                name='Home'
+                component={HomeScreen}
+            />
+            <Stack.Screen
+                name='DocViewer'
+                component={DocViewerScreen}
+            />
+            <Stack.Screen
+                name='Upload'
+                component={UploadScreen}
+            />
         </Stack.Navigator>
     );
 }
@@ -39,7 +56,8 @@ export default function AppNavigator() {
 
                     tabBarActiveTintColor: colors.accent,
                     tabBarInactiveTintColor: colors.textMuted,
-
+                    lazy: true,
+                    unmountOnBlur: false,
                     tabBarIcon: ({ color, size }) => {
                         let iconName;
 
@@ -63,10 +81,22 @@ export default function AppNavigator() {
                     }
                 })}
             >
-                <Tab.Screen name='Wallet' component={HomeStack} />
-                <Tab.Screen name='Share' component={ShareScreen} />
-                <Tab.Screen name='Archive' component={ArchiveScreen} />
-                <Tab.Screen name='Settings' component={SettingsScreen} />
+                <Tab.Screen
+                    name='Wallet'
+                    component={HomeStack}
+                />
+                <Tab.Screen
+                    name='Share'
+                    component={ShareScreen}
+                />
+                <Tab.Screen
+                    name='Archive'
+                    component={ArchiveScreen}
+                />
+                <Tab.Screen
+                    name='Settings'
+                    component={SettingsScreen}
+                />
             </Tab.Navigator>
         </NavigationContainer>
     );
