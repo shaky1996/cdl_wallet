@@ -5,7 +5,7 @@ import { DOC_LABELS } from '../constants/docTypes';
 import {
     getStatus,
     daysUntil,
-    formatDate
+    formatPrettyDate
 } from '../utils/dateHelpers';
 import ExpiryBar from './ExpiryBar';
 import { STATUS_CONFIG } from '../constants/statusConfig';
@@ -32,9 +32,7 @@ export default function DocCard({ docType, doc, onPress }) {
             {/* HEADER */}
             <View style={styles.row}>
                 <View>
-                    <Text style={styles.docType}>
-                        {DOC_LABELS[docType]}
-                    </Text>
+                    <Text style={styles.docType}>{DOC_LABELS[docType]}</Text>
                     <Text style={styles.docName}>
                         {doc.label || DOC_LABELS[docType]}
                     </Text>
@@ -59,7 +57,7 @@ export default function DocCard({ docType, doc, onPress }) {
             <View style={styles.expiryRow}>
                 <Text style={styles.expiryLabel}>Expires</Text>
                 <Text style={styles.expiryDate}>
-                    {formatDate(doc.expiryDate)}
+                    {formatPrettyDate(doc.expiryDate)}
                 </Text>
             </View>
 
@@ -70,8 +68,6 @@ export default function DocCard({ docType, doc, onPress }) {
                     expiryDate={doc.expiryDate}
                 />
             </View>
-
-
         </TouchableOpacity>
     );
 }

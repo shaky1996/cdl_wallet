@@ -8,9 +8,27 @@ export const getDocs = async () => {
     return raw ? JSON.parse(raw) : {};
 };
 
+const normalizeDate = (dateStr) => {
+    if (!dateStr) return null;
+
+    // If ISO → convert to YYYY-MM-DD
+    if (dateStr.includes('T')) {
+        const d = new Date(dateStr);
+        return d.toISOString().split('T')[0];
+    }
+
+    return dateStr; // already YYYY-MM-DD
+};
+
 export const saveDoc = async (docType, docData) => {
     const docs = await getDocs();
-    docs[docType] = { ...docData, updatedAt: new Date().toISOString() };
+
+    docs[docType] = {
+        ...docData,
+        expiryDate: normalizeDate(docData.expiryDate), // 🔥 FIX HERE
+        updatedAt: new Date().toISOString()
+    };
+
     await AsyncStorage.setItem(DOCS_KEY, JSON.stringify(docs));
 };
 

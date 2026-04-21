@@ -17,6 +17,7 @@ import { DOC_LABELS } from '../constants/docTypes';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system';
 import Header from '../components/Header';
+import { formatPrettyDate } from '../utils/dateHelpers';
 
 export default function ShareScreen() {
     const [docs, setDocs] = useState({});
@@ -119,7 +120,7 @@ export default function ShareScreen() {
                                 </Text>
                                 <Text style={styles.docSub}>
                                     {docs[type]
-                                        ? `Expires ${docs[type].expiryDate}`
+                                        ? `Expires ${formatPrettyDate(docs[type].expiryDate)}`
                                         : 'Not uploaded'}
                                 </Text>
                             </View>

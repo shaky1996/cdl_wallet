@@ -204,7 +204,7 @@ export default function UploadScreen({ navigation, route }) {
                 const localUri = await saveDocFile(docType, imageUri);
                 await saveDoc(docType, {
                     localUri,
-                    expiryDate,
+                    expiryDate: formatLocalDate(tempDate),
                     uploadedAt: new Date().toISOString(),
                     label: docLabel
                 });

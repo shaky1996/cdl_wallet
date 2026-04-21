@@ -21,7 +21,8 @@ import { cancelDocReminders } from '../services/notifications';
 import {
     getStatus,
     daysUntil,
-    formatDate,
+    formatPrettyDate,
+
     validityPercent
 } from '../utils/dateHelpers';
 import { DOC_LABELS } from '../constants/docTypes';
@@ -155,11 +156,11 @@ const closeFullScreen = () => {
     return (
         <SafeAreaView style={common.safeArea}>
             {/* Top bar */}
-            
-           <BackButtonBar
-                           title={docLabel}
-                           onBack={() => navigation.goBack()}
-                       />
+
+            <BackButtonBar
+                title={docLabel}
+                onBack={() => navigation.goBack()}
+            />
 
             <ScrollView
                 style={common.screenBody}
@@ -212,15 +213,13 @@ const closeFullScreen = () => {
                     ) : imageBase64 ? (
                         // ✅ ADDED TOUCHABLE ONLY
                         <TouchableOpacity onPress={openFullScreen}>
-                           
-                                <Image
-                                    source={{
-                                        uri: `data:image/jpeg;base64,${imageBase64}`
-                                    }}
-                                    style={styles.docImage}
-                                    resizeMode='cover'
-                                />
-                            
+                            <Image
+                                source={{
+                                    uri: `data:image/jpeg;base64,${imageBase64}`
+                                }}
+                                style={styles.docImage}
+                                resizeMode='cover'
+                            />
                         </TouchableOpacity>
                     ) : (
                         <View style={styles.imagePlaceholder}>
@@ -230,7 +229,9 @@ const closeFullScreen = () => {
                         </View>
                     )}
 
-                    <Text style={styles.fullScreenHint}>Click for full screen</Text>
+                    <Text style={styles.fullScreenHint}>
+                        Click for full screen
+                    </Text>
                 </View>
 
                 {/* Info panel */}
@@ -243,7 +244,7 @@ const closeFullScreen = () => {
                     <View style={[styles.infoRow, styles.infoDivider]}>
                         <Text style={styles.infoLabel}>Expires</Text>
                         <Text style={styles.infoVal}>
-                            {formatDate(doc.expiryDate)}
+                            {formatPrettyDate(doc.expiryDate)}
                         </Text>
                     </View>
 
@@ -325,38 +326,38 @@ const closeFullScreen = () => {
 
             {/*FULLSCREEN MODAL */}
             {isFullScreen && (
-    <Modal transparent>
-        <Animated.View
-            style={[
-                {
-                    flex: 1,
-                    backgroundColor: 'black',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    opacity
-                }
-            ]}
-        >
-            <TouchableOpacity
-                style={{ flex: 1, width: '100%' }}
-                activeOpacity={1}
-                onPress={closeFullScreen}
-            >
-                <Animated.Image
-                    source={{
-                        uri: `data:image/jpeg;base64,${imageBase64}`
-                    }}
-                    style={{
-                        width: '100%',
-                        height: '100%',
-                        transform: [{ scale }]
-                    }}
-                    resizeMode="contain"
-                />
-            </TouchableOpacity>
-        </Animated.View>
-    </Modal>
-)}
+                <Modal transparent>
+                    <Animated.View
+                        style={[
+                            {
+                                flex: 1,
+                                backgroundColor: 'black',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                opacity
+                            }
+                        ]}
+                    >
+                        <TouchableOpacity
+                            style={{ flex: 1, width: '100%' }}
+                            activeOpacity={1}
+                            onPress={closeFullScreen}
+                        >
+                            <Animated.Image
+                                source={{
+                                    uri: `data:image/jpeg;base64,${imageBase64}`
+                                }}
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    transform: [{ scale }]
+                                }}
+                                resizeMode='contain'
+                            />
+                        </TouchableOpacity>
+                    </Animated.View>
+                </Modal>
+            )}
         </SafeAreaView>
     );
 }
