@@ -34,34 +34,55 @@ export default function ShareScreen() {
     const toggle = (type) => setSelected((s) => ({ ...s, [type]: !s[type] }));
 
     const handleSend = async () => {
-        if (!email.trim()) return Alert.alert('Enter employer email');
+    if (!email.trim()) {
+        return Alert.alert('Enter employer email');
+    }
 
-        const chosenTypes = Object.keys(selected).filter(
-            (t) => selected[t] && docs[t]
-        );
-        if (!chosenTypes.length)
-            return Alert.alert('Select at least one document');
+    const chosenTypes = Object.keys(selected).filter(
+        (t) => selected[t] && docs[t]
+    );
 
-        setSending(true);
-        try {
-            const attachments = await Promise.all(
-                chosenTypes.map((t) =>
-                    imageToPdf(docs[t].localUri, DOC_LABELS[t])
-                )
-            );
+    if (!chosenTypes.length) {
+        return Alert.alert('Select at least one document');
+    }
 
-            await MailComposer.composeAsync({
-                recipients: [email.trim()],
-                subject: 'CDL Wallet - Driver Documents',
-                body: 'Hello, \nPlease find my documents attached.',
-                attachments
-            });
-        } catch (e) {
-            Alert.alert('Error', 'Could not open mail composer.');
-        } finally {
-            setSending(false);
-        }
-    };
+    setSending(true);
+
+    try {
+        // 1. Build only selected docs
+        const selectedDocs = {};
+        chosenTypes.forEach((t) => {
+            selectedDocs[t] = docs[t];
+        });
+
+        // 2. Generate PDF (returns file:// from expo-print)
+        const pdfUri = await imageToPdf(selectedDocs, DOC_LABELS);
+
+        // 3. Move to safe cache location (IMPORTANT for MailComposer)
+        const safeUri = FileSystem.cacheDirectory + `driver_docs_${Date.now()}.pdf`;
+
+        await FileSystem.copyAsync({
+            from: pdfUri,
+            to: safeUri
+        });
+
+        // 4. Send email with valid file path
+        const result = await MailComposer.composeAsync({
+            recipients: [email.trim()],
+            subject: 'CDL Wallet - Driver Documents',
+            body: 'Hello,\n\nPlease find my documents attached.\n\nRegards',
+            attachments: [safeUri]
+        });
+
+        console.log('Mail result:', result);
+
+    } catch (e) {
+        console.log('EMAIL ERROR:', e);
+        Alert.alert('Error', 'Could not open mail composer.');
+    } finally {
+        setSending(false);
+    }
+};
 
     // ✅ NEW: universal share handler
     const handleShare = async () => {
