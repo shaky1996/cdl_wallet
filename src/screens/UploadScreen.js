@@ -514,7 +514,7 @@ pickerTitle: {
 
 doneTopRight: {
     color: theme.colors.accent,
-    fontSize: 18,
-    fontWeight: '700'
+    fontSize: 16,
+    fontWeight: '500'
 }
 });
