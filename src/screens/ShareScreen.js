@@ -15,7 +15,7 @@ import { getDocs } from '../services/storage';
 import { imageToPdf } from '../services/pdfExport';
 import { DOC_LABELS } from '../constants/docTypes';
 import * as Sharing from 'expo-sharing';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import Header from '../components/Header';
 import { formatPrettyDate } from '../utils/dateHelpers';
 
@@ -65,25 +65,27 @@ export default function ShareScreen() {
 
     // ✅ NEW: universal share handler
     const handleShare = async () => {
-        const chosenTypes = Object.keys(selected).filter(
-            (t) => selected[t] && docs[t]
-        );
-        if (!chosenTypes.length)
-            return Alert.alert('Select at least one document');
+    const chosenTypes = Object.keys(selected).filter(
+        (t) => selected[t] && docs[t]
+    );
 
-        try {
-            const attachments = await Promise.all(
-                chosenTypes.map((t) =>
-                    imageToPdf(docs[t].localUri, DOC_LABELS[t])
-                )
-            );
+    if (!chosenTypes.length)
+        return Alert.alert('Select at least one document');
 
-            // Share first file (most apps only accept one)
-            await Sharing.shareAsync(attachments[0]);
-        } catch (e) {
-            Alert.alert('Error', 'Could not open share menu.');
-        }
-    };
+    try {
+        // build a docs object only with selected ones
+        const selectedDocs = {};
+        chosenTypes.forEach((t) => {
+            selectedDocs[t] = docs[t];
+        });
+
+        const pdfUri = await imageToPdf(selectedDocs, DOC_LABELS);
+
+        await Sharing.shareAsync(pdfUri);
+    } catch (e) {
+        Alert.alert('Error', 'Could not open share menu.');
+    }
+};
 
     return (
         <SafeAreaView style={styles.safe}>

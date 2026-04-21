@@ -1,45 +1,38 @@
 import * as Print from 'expo-print';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
+
+
 
 const toBase64 = async (uri) => {
-    return await FileSystem.readAsStringAsync(cleanUri, {
-        encoding: FileSystem.EncodingType.Base64
+    return await FileSystem.readAsStringAsync(uri, {
+        encoding: 'base64'
     });
 };
 
+
 export const imageToPdf = async (docs, docLabels) => {
     try {
-        const cdl = docs.cdl;
-        const med = docs.med_card;
-
         let pages = '';
 
-        // 🔥 CDL FIRST
-        if (cdl?.localUri) {
-            const base64 = await toBase64(cdl.localUri);
-            const ext = cdl.localUri.split('.').pop().toLowerCase();
+        for (const key of Object.keys(docs)) {
+            const doc = docs[key];
+
+            if (!doc?.localUri) continue;
+
+            const base64 = await FileSystem.readAsStringAsync(doc.localUri, {
+                encoding: 'base64'
+            });
+
+            const ext = doc.localUri.split('.').pop().toLowerCase();
             const mime = ext === 'png' ? 'image/png' : 'image/jpeg';
 
             pages += `
                 <div style="page-break-after: always; text-align:center;">
-                    <h3 style="font-family:sans-serif;">${docLabels.cdl}</h3>
-                    <img src="data:${mime};base64,${base64}"
-                        style="width:100%;object-fit:contain;" />
-                </div>
-            `;
-        }
-
-        // 🔥 MED CARD SECOND
-        if (med?.localUri) {
-            const base64 = await toBase64(med.localUri);
-            const ext = med.localUri.split('.').pop().toLowerCase();
-            const mime = ext === 'png' ? 'image/png' : 'image/jpeg';
-
-            pages += `
-                <div style="page-break-after: always; text-align:center;">
-                    <h3 style="font-family:sans-serif;">${docLabels.med_card}</h3>
-                    <img src="data:${mime};base64,${base64}"
-                        style="width:100%;object-fit:contain;" />
+                    <h3 style="font-family:sans-serif;">${docLabels[key]}</h3>
+                    <img 
+                        src="data:${mime};base64,${base64}" 
+                        style="width:100%; height:auto;" 
+                    />
                 </div>
             `;
         }
