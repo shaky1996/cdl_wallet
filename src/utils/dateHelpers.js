@@ -36,6 +36,13 @@ export const formatShortDate = (dateStr) => {
     });
 };
 
+export const formatMMDDYYYY = (dateStr) => {
+    const [year, month, day] = dateStr.split('-');
+    
+
+    return `${month}-${day}-${year}`;
+};
+
 export const daysUntil = (expiryDateStr) => {
     const today = new Date();
     const expiry = parseLocalDate(expiryDateStr);

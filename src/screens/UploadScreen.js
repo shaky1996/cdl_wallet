@@ -24,6 +24,7 @@ import { scheduleExpiryReminders } from '../services/notifications';
 import { useAsyncError } from '../hooks/useAsyncError';
 import { DOC_LABELS } from '../constants/docTypes';
 import BackButtonBar from '../components/BackButtonBar';
+import { formatMMDDYYYY } from '../utils/dateHelpers';
 
 export default function UploadScreen({ navigation, route }) {
     const { docType } = route.params;
@@ -173,7 +174,7 @@ export default function UploadScreen({ navigation, route }) {
         if (!dateStr.trim()) return 'Please enter the expiry date.';
         const parsed = new Date(dateStr);
         if (isNaN(parsed.getTime()))
-            return 'Invalid date format. Use YYYY-MM-DD.';
+            return 'Invalid date format. Use MM-DD-YYYY.';
         return null;
     };
 
@@ -281,7 +282,7 @@ export default function UploadScreen({ navigation, route }) {
                     onPress={() => setShowPicker(true)}
                 >
                     <View style={styles.dateInputWrap}>
-                        <Text style={styles.dateInputLabel}>YYYY-MM-DD</Text>
+                        <Text style={styles.dateInputLabel}>MM-DD-YYYY</Text>
 
                         <TouchableOpacity
                             style={styles.dateInput}
@@ -294,7 +295,9 @@ export default function UploadScreen({ navigation, route }) {
                                         : theme.colors.textMuted
                                 }}
                             >
-                                {expiryDate || 'e.g. 2026-03-14'}
+                                {expiryDate
+                                    ? formatMMDDYYYY(expiryDate)
+                                    : 'e.g. 04-25-2026'}
                             </Text>
                         </TouchableOpacity>
                     </View>
