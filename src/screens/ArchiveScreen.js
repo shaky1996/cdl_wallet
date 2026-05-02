@@ -13,7 +13,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { theme } from '../styles/theme';
 import { common } from '../styles/common';
 import { getArchive, deleteArchivedDoc } from '../services/storage';
-import { formatDate } from '../utils/dateHelpers';
+import { formatPrettyDate } from '../utils/dateHelpers';
 import { DOC_LABELS } from '../constants/docTypes';
 import { useAsyncError } from '../hooks/useAsyncError';
 import Header from '../components/Header';
@@ -65,7 +65,6 @@ export default function ArchiveScreen({ navigation }) {
     };
 
     const handleView = (item) => {
-        // Navigate to a read-only viewer for the archived doc
         navigation.navigate('ArchivedDocViewer', { item });
     };
 
@@ -89,9 +88,9 @@ export default function ArchiveScreen({ navigation }) {
                         {DOC_LABELS[item.docType]}
                     </Text>
                     <Text style={styles.cardDates}>
-                        Expired {formatDate(item.expiryDate)}
+                        Expired {formatPrettyDate(item.expiryDate)}
                         {item.archivedAt
-                            ? ` · Replaced ${formatDate(item.archivedAt)}`
+                            ? ` · Replaced ${formatPrettyDate(item.archivedAt)}`
                             : ''}
                     </Text>
                 </View>

@@ -10,18 +10,18 @@ import DocViewerScreen from '../screens/DocViewerScreen';
 import UploadScreen from '../screens/UploadScreen';
 import ShareScreen from '../screens/ShareScreen';
 import ArchiveScreen from '../screens/ArchiveScreen';
+import ArchivedDocViewerScreen from '../screens/ArchivedDocViewerScreen';
 import SettingsScreen from '../screens/SettingsScreen';
-
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
+const RootStack = createNativeStackNavigator();
 
 function HomeStack() {
     return (
         <Stack.Navigator
             screenOptions={{
                 animation: 'slide_from_right',
-                
                 gestureEnabled: true,
                 headerShown: false
             }}
@@ -42,62 +42,78 @@ function HomeStack() {
     );
 }
 
+function Tabs() {
+    return (
+        <Tab.Navigator
+            screenOptions={({ route }) => ({
+                headerShown: false,
+                tabBarStyle: {
+                    backgroundColor: colors.bg,
+                    borderTopColor: colors.border
+                },
+                tabBarActiveTintColor: colors.accent,
+                tabBarInactiveTintColor: colors.textMuted,
+                lazy: true,
+                unmountOnBlur: false,
+                tabBarIcon: ({ color, size }) => {
+                    let iconName;
+
+                    if (route.name === 'Wallet') {
+                        iconName = 'wallet-outline';
+                    } else if (route.name === 'Share') {
+                        iconName = 'share-outline';
+                    } else if (route.name === 'Archive') {
+                        iconName = 'archive-outline';
+                    } else if (route.name === 'Settings') {
+                        iconName = 'settings-outline';
+                    }
+
+                    return (
+                        <Ionicons
+                            name={iconName}
+                            size={size}
+                            color={color}
+                        />
+                    );
+                }
+            })}
+        >
+            <Tab.Screen
+                name='Wallet'
+                component={HomeStack}
+            />
+            <Tab.Screen
+                name='Share'
+                component={ShareScreen}
+            />
+            <Tab.Screen
+                name='Archive'
+                component={ArchiveScreen}
+            />
+            <Tab.Screen
+                name='Settings'
+                component={SettingsScreen}
+            />
+        </Tab.Navigator>
+    );
+}
+
 export default function AppNavigator() {
     return (
         <NavigationContainer>
-            <Tab.Navigator
-                screenOptions={({ route }) => ({
-                    headerShown: false,
-
-                    tabBarStyle: {
-                        backgroundColor: colors.bg,
-                        borderTopColor: colors.border
-                    },
-
-                    tabBarActiveTintColor: colors.accent,
-                    tabBarInactiveTintColor: colors.textMuted,
-                    lazy: true,
-                    unmountOnBlur: false,
-                    tabBarIcon: ({ color, size }) => {
-                        let iconName;
-
-                        if (route.name === 'Wallet') {
-                            iconName = 'wallet-outline';
-                        } else if (route.name === 'Share') {
-                            iconName = 'share-outline';
-                        } else if (route.name === 'Archive') {
-                            iconName = 'archive-outline';
-                        } else if (route.name === 'Settings') {
-                            iconName = 'settings-outline';
-                        }
-
-                        return (
-                            <Ionicons
-                                name={iconName}
-                                size={size}
-                                color={color}
-                            />
-                        );
-                    }
-                })}
-            >
-                <Tab.Screen
-                    name='Wallet'
-                    component={HomeStack}
+            <RootStack.Navigator screenOptions={{ headerShown: false }}>
+                {/* MAIN APP */}
+                <RootStack.Screen
+                    name='Tabs'
+                    component={Tabs}
                 />
-                <Tab.Screen
-                    name='Share'
-                    component={ShareScreen}
+
+                {/* GLOBAL DETAIL SCREEN (FIX) */}
+                <RootStack.Screen
+                    name='ArchivedDocViewer'
+                    component={ArchivedDocViewerScreen}
                 />
-                <Tab.Screen
-                    name='Archive'
-                    component={ArchiveScreen}
-                />
-                <Tab.Screen
-                    name='Settings'
-                    component={SettingsScreen}
-                />
-            </Tab.Navigator>
+            </RootStack.Navigator>
         </NavigationContainer>
     );
 }

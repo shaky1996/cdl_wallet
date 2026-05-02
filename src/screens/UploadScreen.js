@@ -18,8 +18,9 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { theme } from '../styles/theme';
 import { common } from '../styles/common';
-import { saveDocFile } from '../services/fileSystem';
-import { saveDoc } from '../services/storage';
+import { saveDocFile, moveToArchive } from '../services/fileSystem';
+import { saveDoc, getDocs, archiveDoc } from '../services/storage';
+
 import { scheduleExpiryReminders } from '../services/notifications';
 import { useAsyncError } from '../hooks/useAsyncError';
 import { DOC_LABELS } from '../constants/docTypes';
@@ -186,13 +187,48 @@ export default function UploadScreen({ navigation, route }) {
     };
 
     const handleSave = () => {
-        if (!imageUri) {
-            Alert.alert(
-                'No document',
-                'Please take a photo or pick a file first.'
-            );
-            return;
-        }
+        run(
+            async () => {
+                // 🔥 1. Get current docs
+                const existingDocs = await getDocs();
+                const existing = existingDocs[docType];
+
+                // 🔥 2. If doc exists → archive it
+                if (existing?.localUri) {
+                    const archivedUri = await moveToArchive(
+                        docType,
+                        existing.localUri
+                    );
+
+                    await archiveDoc(docType, {
+                        ...existing,
+                        localUri: archivedUri, // 👈 important
+                        archivedAt: new Date().toISOString()
+                    });
+                }
+
+                // 🔥 3. Save new file
+                const localUri = await saveDocFile(docType, imageUri);
+
+                await saveDoc(docType, {
+                    localUri,
+                    expiryDate: formatLocalDate(tempDate), // stays YYYY-MM-DD
+                    uploadedAt: new Date().toISOString(),
+                    label: docLabel
+                });
+
+                // 🔥 4. schedule reminders
+                await scheduleExpiryReminders(docType, expiryDate);
+            },
+            {
+                onSuccess: () => {
+                    Alert.alert('Saved', `Your ${docLabel} has been saved.`, [
+                        { text: 'OK', onPress: () => navigation.goBack() }
+                    ]);
+                },
+                errorMessage: `Could not save your ${docLabel}. Please try again.`
+            }
+        );
 
         const validationError = validateExpiryDate(expiryDate);
         if (validationError) {
