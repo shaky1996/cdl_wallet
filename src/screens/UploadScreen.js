@@ -187,13 +187,19 @@ export default function UploadScreen({ navigation, route }) {
     };
 
     const handleSave = () => {
+        const validationError = validateExpiryDate(formatLocalDate(tempDate));
+        if (validationError) {
+            Alert.alert('Check expiry date', validationError);
+            return;
+        }
+
         run(
             async () => {
-                // 🔥 1. Get current docs
+                // 1. Get current docs
                 const existingDocs = await getDocs();
                 const existing = existingDocs[docType];
 
-                // 🔥 2. If doc exists → archive it
+                // 2. Archive old doc
                 if (existing?.localUri) {
                     const archivedUri = await moveToArchive(
                         docType,
@@ -202,58 +208,31 @@ export default function UploadScreen({ navigation, route }) {
 
                     await archiveDoc(docType, {
                         ...existing,
-                        localUri: archivedUri, // 👈 important
+                        localUri: archivedUri,
                         archivedAt: formatLocalDate(new Date())
                     });
                 }
 
-                // 🔥 3. Save new file
+                // 3. Save new doc
                 const localUri = await saveDocFile(docType, imageUri);
+
+                const formattedExpiry = formatLocalDate(tempDate);
 
                 await saveDoc(docType, {
                     localUri,
-                    expiryDate: formatLocalDate(tempDate), // stays YYYY-MM-DD
+                    expiryDate: formattedExpiry,
                     uploadedAt: new Date().toISOString(),
                     label: docLabel
                 });
 
-                // 🔥 4. schedule reminders
-                await scheduleExpiryReminders(docType, expiryDate);
+                // 4. schedule reminders (use SAME value)
+                await scheduleExpiryReminders(docType, formattedExpiry);
             },
             {
                 onSuccess: () => {
                     Alert.alert('Saved', `Your ${docLabel} has been saved.`, [
                         { text: 'OK', onPress: () => navigation.goBack() }
                     ]);
-                },
-                errorMessage: `Could not save your ${docLabel}. Please try again.`
-            }
-        );
-
-        const validationError = validateExpiryDate(expiryDate);
-        if (validationError) {
-            Alert.alert('Check expiry date', validationError);
-            return;
-        }
-
-        run(
-            async () => {
-                const localUri = await saveDocFile(docType, imageUri);
-                await saveDoc(docType, {
-                    localUri,
-                    expiryDate: formatLocalDate(tempDate),
-                    uploadedAt: new Date().toISOString(),
-                    label: docLabel
-                });
-                await scheduleExpiryReminders(docType, expiryDate);
-            },
-            {
-                onSuccess: () => {
-                    Alert.alert(
-                        'Saved',
-                        `Your ${docLabel} has been saved.`,
-                        [{ text: 'OK', onPress: () => navigation.goBack() }]
-                    );
                 },
                 errorMessage: `Could not save your ${docLabel}. Please try again.`
             }

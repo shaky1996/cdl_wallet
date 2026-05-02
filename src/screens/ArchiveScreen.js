@@ -7,7 +7,8 @@ import {
     SafeAreaView,
     FlatList,
     Alert,
-    ActivityIndicator
+    ActivityIndicator,
+    Image
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { theme } from '../styles/theme';
@@ -77,42 +78,44 @@ export default function ArchiveScreen({ navigation }) {
 
     const renderItem = ({ item }) => (
         <View style={styles.archiveCard}>
-            <View style={styles.cardHeader}>
-                <View style={styles.docThumb}>
-                    <Text style={styles.thumbText}>
-                        {item.docType === 'cdl' ? 'CDL' : 'MED'}
-                    </Text>
+            <TouchableOpacity onPress={() => handleView(item)}>
+                <View style={styles.cardHeader}>
+                    <Image
+                        source={{ uri: item.localUri }}
+                        style={styles.docThumbImage}
+                        resizeMode='cover'
+                    />
+                    <View style={styles.cardMeta}>
+                        <Text style={styles.cardName}>
+                            Old {DOC_LABELS[item.docType]}
+                        </Text>
+                        <Text style={styles.cardDates}>
+                            Expiration date: {formatPrettyDate(item.expiryDate)}
+                        </Text>
+                        <Text style={styles.cardDates}>
+                            {item.archivedAt
+                                ? `Added to archive: ${formatPrettyDate(item.archivedAt)}`
+                                : ''}
+                        </Text>
+                    </View>
                 </View>
-                <View style={styles.cardMeta}>
-                    <Text style={styles.cardName}>
-                        {DOC_LABELS[item.docType]}
-                    </Text>
-                    <Text style={styles.cardDates}>
-                        Expired {formatPrettyDate(item.expiryDate)}
-                        {item.archivedAt
-                            ? ` · Replaced ${formatPrettyDate(item.archivedAt)}`
-                            : ''}
-                    </Text>
+
+                <View style={styles.cardActions}>
+                    <TouchableOpacity
+                        style={[styles.cardAction, styles.cardActionLeft]}
+                        onPress={() => handleView(item)}
+                    >
+                        <Text style={styles.viewText}>View</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.cardAction}
+                        onPress={() => handleDelete(item)}
+                        disabled={loading}
+                    >
+                        <Text style={styles.deleteText}>Delete</Text>
+                    </TouchableOpacity>
                 </View>
-                <View style={styles.expiredBadge}>
-                    <Text style={styles.expiredBadgeText}>Expired</Text>
-                </View>
-            </View>
-            <View style={styles.cardActions}>
-                <TouchableOpacity
-                    style={[styles.cardAction, styles.cardActionLeft]}
-                    onPress={() => handleView(item)}
-                >
-                    <Text style={styles.viewText}>View</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.cardAction}
-                    onPress={() => handleDelete(item)}
-                    disabled={loading}
-                >
-                    <Text style={styles.deleteText}>Delete</Text>
-                </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
         </View>
     );
 
@@ -210,14 +213,11 @@ const styles = StyleSheet.create({
         gap: theme.spacing.md,
         padding: theme.spacing.md
     },
-    docThumb: {
-        width: 44,
-        height: 32,
+    docThumbImage: {
+        width: 64,
+        height: 44,
         borderRadius: 6,
-        backgroundColor: theme.colors.border,
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0
+        backgroundColor: theme.colors.border
     },
     thumbText: {
         color: theme.colors.textMuted,
