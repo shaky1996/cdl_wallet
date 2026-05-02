@@ -23,7 +23,6 @@ import {
     getStatus,
     daysUntil,
     formatPrettyDate,
-    validityPercent
 } from '../utils/dateHelpers';
 import { DOC_LABELS } from '../constants/docTypes';
 import StatusBadge from '../components/StatusBadge';
@@ -170,7 +169,7 @@ const closeFullScreen = () => {
                 contentContainerStyle={styles.scrollContent}
             >
                 {/* Front / Back toggle */}
-                {docType === 'cdl' && (
+                {/* {docType === 'cdl' && (
                     <View style={styles.toggle}>
                         <TouchableOpacity
                             style={[
@@ -205,7 +204,7 @@ const closeFullScreen = () => {
                             </Text>
                         </TouchableOpacity>
                     </View>
-                )}
+                )} */}
 
                 {/* Document image */}
                 <View style={styles.docFrame}>

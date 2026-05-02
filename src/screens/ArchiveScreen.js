@@ -147,7 +147,7 @@ export default function ArchiveScreen({ navigation }) {
 
                 <View style={styles.infoBanner}>
                     <Text style={styles.infoText}>
-                        Carriers sometimes ask for proof of a prior valid
+                        Employers sometimes ask for proof of a prior valid
                         document. Keeping archived docs saves you a trip to the
                         DMV.
                     </Text>

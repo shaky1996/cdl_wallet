@@ -10,9 +10,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { colors } from '../constants/colors';
 import { getDocs } from '../services/storage';
-import { getStatus, daysUntil, formatDate } from '../utils/dateHelpers';
 import DocCard from '../components/DocCard';
-import { Ionicons } from '@expo/vector-icons';
 import Header from '../components/Header';
 
 export default function HomeScreen({ navigation }) {
