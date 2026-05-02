@@ -16,9 +16,27 @@ export const parseLocalDate = (dateStr) => {
 
 // 🔥 NEW: Pretty display format (April 20, 2026)
 export const formatPrettyDate = (dateStr) => {
-    const [year, month, day] = dateStr.split('-');
+    if (!dateStr) return '';
 
-    return new Date(year, month - 1, day).toLocaleDateString('en-US', {
+    let date;
+
+    // CASE 1: already YYYY-MM-DD
+    if (
+        typeof dateStr === 'string' &&
+        dateStr.includes('-') &&
+        !dateStr.includes('T')
+    ) {
+        const [year, month, day] = dateStr.split('-');
+        date = new Date(year, month - 1, day);
+    }
+    // CASE 2: ISO string (old data)
+    else {
+        date = new Date(dateStr);
+    }
+
+    if (isNaN(date.getTime())) return 'Invalid date';
+
+    return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric'

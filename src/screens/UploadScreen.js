@@ -203,7 +203,7 @@ export default function UploadScreen({ navigation, route }) {
                     await archiveDoc(docType, {
                         ...existing,
                         localUri: archivedUri, // 👈 important
-                        archivedAt: new Date().toISOString()
+                        archivedAt: formatLocalDate(new Date())
                     });
                 }
 
