@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
     View,
     Text,
@@ -10,8 +10,9 @@ import {
     ActivityIndicator,
     Image,
     Modal,
-    Animated
-} from 'react-native';
+    Animated,
+    } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { theme } from '../styles/theme';
 import { common } from '../styles/common';
 import { getDocs } from '../services/storage';
@@ -22,7 +23,6 @@ import {
     getStatus,
     daysUntil,
     formatPrettyDate,
-
     validityPercent
 } from '../utils/dateHelpers';
 import { DOC_LABELS } from '../constants/docTypes';
@@ -48,9 +48,11 @@ export default function DocViewerScreen({ navigation, route }) {
 const opacity = useState(new Animated.Value(0))[0];
 const scale = useState(new Animated.Value(0.95))[0];
 
-    useEffect(() => {
+ useFocusEffect(
+    useCallback(() => {
         loadDoc();
-    }, []);
+    }, [])
+ );
 
     const loadDoc = async () => {
         try {
