@@ -11,8 +11,8 @@ import {
     Image
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { theme } from '../styles/theme';
-import { common } from '../styles/common';
+
+import { colors } from '../constants/colors';
 import { getArchive, deleteArchivedDoc } from '../services/storage';
 import { formatPrettyDate } from '../utils/dateHelpers';
 import { DOC_LABELS } from '../constants/docTypes';
@@ -69,61 +69,69 @@ export default function ArchiveScreen({ navigation }) {
         navigation.navigate('ArchivedDocViewer', { item });
     };
 
-    const groupedByType = archive.reduce((acc, item) => {
-        const key = item.docType;
-        if (!acc[key]) acc[key] = [];
-        acc[key].push(item);
-        return acc;
-    }, {});
-
     const renderItem = ({ item }) => (
-        <View style={styles.archiveCard}>
-            <TouchableOpacity onPress={() => handleView(item)}>
-                <View style={styles.cardHeader}>
-                    <Image
-                        source={{ uri: item.localUri }}
-                        style={styles.docThumbImage}
-                        resizeMode='cover'
-                    />
-                    <View style={styles.cardMeta}>
-                        <Text style={styles.cardName}>
-                            Old {DOC_LABELS[item.docType]}
-                        </Text>
-                        <Text style={styles.cardDates}>
-                            Expiration date: {formatPrettyDate(item.expiryDate)}
-                        </Text>
-                        <Text style={styles.cardDates}>
-                            {item.archivedAt
-                                ? `Added to archive: ${formatPrettyDate(item.archivedAt)}`
-                                : ''}
-                        </Text>
-                    </View>
-                </View>
+        <TouchableOpacity
+            activeOpacity={0.9}
+            onPress={() => handleView(item)}
+            style={styles.archiveCard}
+        >
+            {/* HEADER */}
+            <View style={styles.cardHeader}>
+                <Image
+                    source={{ uri: item.localUri }}
+                    style={styles.docThumbImage}
+                    resizeMode='cover'
+                />
 
-                <View style={styles.cardActions}>
-                    <TouchableOpacity
-                        style={[styles.cardAction, styles.cardActionLeft]}
-                        onPress={() => handleView(item)}
-                    >
-                        <Text style={styles.viewText}>View</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={styles.cardAction}
-                        onPress={() => handleDelete(item)}
-                        disabled={loading}
-                    >
-                        <Text style={styles.deleteText}>Delete</Text>
-                    </TouchableOpacity>
+                <View style={styles.cardMeta}>
+                    <Text style={styles.cardName}>
+                        Old {DOC_LABELS[item.docType]}
+                    </Text>
+
+                    <Text style={styles.cardDates}>
+                        Expiration date: {formatPrettyDate(item.expiryDate)}
+                    </Text>
+
+                    {item.archivedAt ? (
+                        <Text style={styles.cardDates}>
+                            Added to archive:{' '}
+                            {formatPrettyDate(item.archivedAt)}
+                        </Text>
+                    ) : null}
                 </View>
-            </TouchableOpacity>
-        </View>
+            </View>
+
+            {/* ACTIONS */}
+            <View style={styles.cardActions}>
+                <TouchableOpacity
+                    style={[styles.cardAction, styles.cardActionLeft]}
+                    onPress={(e) => {
+                        e?.stopPropagation?.();
+                        handleView(item);
+                    }}
+                >
+                    <Text style={styles.viewText}>View</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={styles.cardAction}
+                    onPress={(e) => {
+                        e?.stopPropagation?.();
+                        handleDelete(item);
+                    }}
+                    disabled={loading}
+                >
+                    <Text style={styles.deleteText}>Delete</Text>
+                </TouchableOpacity>
+            </View>
+        </TouchableOpacity>
     );
 
     if (loadingArchive) {
         return (
-            <SafeAreaView style={common.safeArea}>
+            <SafeAreaView style={styles.safe}>
                 <ActivityIndicator
-                    color={theme.colors.accent}
+                    color={colors.accent}
                     style={{ flex: 1 }}
                 />
             </SafeAreaView>
@@ -131,166 +139,157 @@ export default function ArchiveScreen({ navigation }) {
     }
 
     return (
-        <SafeAreaView style={common.safeArea}>
+        <SafeAreaView style={styles.safe}>
             <Header subtitle='Archive' />
-            
 
-            {archive.length === 0 ? (
-                <View style={styles.emptyState}>
-                    <Text style={styles.emptyTitle}>No archived documents</Text>
-                    <Text style={styles.emptySub}>
-                        When you replace a CDL or med card, the old one is saved
-                        here.
+            <View style={styles.body}>
+                <Text style={styles.label}>Archived documents</Text>
+
+                <View style={styles.infoBanner}>
+                    <Text style={styles.infoText}>
+                        Carriers sometimes ask for proof of a prior valid
+                        document. Keeping archived docs saves you a trip to the
+                        DMV.
                     </Text>
                 </View>
-            ) : (
-                <FlatList
-                    data={archive}
-                    keyExtractor={(item) => item.id}
-                    renderItem={renderItem}
-                    style={styles.list}
-                    contentContainerStyle={styles.listContent}
-                    ListHeaderComponent={
-                        <View style={styles.infoBanner}>
-                            <Text style={styles.infoBannerText}>
-                                Carriers sometimes ask for proof of a prior
-                                valid document. Keeping archived docs saves you
-                                a trip to the DMV.
-                            </Text>
-                        </View>
-                    }
-                    ItemSeparatorComponent={() => (
-                        <View style={{ height: 8 }} />
-                    )}
-                />
-            )}
+
+                {archive.length === 0 ? (
+                    <View style={styles.emptyState}>
+                        <Text style={styles.emptyText}>
+                            No archived documents
+                        </Text>
+                    </View>
+                ) : (
+                    <FlatList
+                        data={archive}
+                        keyExtractor={(item) => item.id}
+                        renderItem={renderItem}
+                        contentContainerStyle={styles.listContent}
+                        ItemSeparatorComponent={() => (
+                            <View style={{ height: 8 }} />
+                        )}
+                    />
+                )}
+            </View>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    screenTitle: {
-        color: theme.colors.textPrimary,
-        fontSize: theme.font.xl,
-        fontWeight: '500',
-        paddingHorizontal: theme.spacing.lg,
-        paddingTop: theme.spacing.sm,
-        paddingBottom: theme.spacing.md,
-        backgroundColor: theme.colors.bg
-    },
-    list: {
+    safe: {
         flex: 1,
-        backgroundColor: theme.colors.bgBody
+        backgroundColor: colors.bg
     },
-    listContent: {
-        padding: theme.spacing.lg,
-        paddingBottom: 40,
+
+    body: {
+        flex: 1,
+        backgroundColor: colors.bgBody,
+        padding: 16,
         gap: 8
     },
+
+    label: {
+        color: colors.textMuted,
+        fontSize: 10,
+        fontWeight: '600',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+        marginBottom: 4
+    },
+
     infoBanner: {
         backgroundColor: '#1a1f2e',
-        borderRadius: theme.radius.md,
+        borderRadius: 12,
         borderWidth: 0.5,
-        borderColor: theme.colors.blue,
-        padding: theme.spacing.md,
-        marginBottom: theme.spacing.md
+        borderColor: colors.blue,
+        padding: 12
     },
-    infoBannerText: {
-        color: theme.colors.blue,
+
+    infoText: {
+        color: colors.blue,
         fontSize: 12,
         lineHeight: 18
     },
+
+    listContent: {
+        paddingTop: 8,
+        paddingBottom: 40
+    },
+
     archiveCard: {
-        backgroundColor: theme.colors.bgCard,
-        borderRadius: theme.radius.lg,
+        backgroundColor: colors.bgCard,
+        borderRadius: 12,
         borderWidth: 1,
-        borderColor: theme.colors.border,
+        borderColor: colors.border,
         overflow: 'hidden'
     },
+
     cardHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: theme.spacing.md,
-        padding: theme.spacing.md
+        gap: 12,
+        padding: 14
     },
+
     docThumbImage: {
         width: 64,
         height: 44,
         borderRadius: 6,
-        backgroundColor: theme.colors.border
+        backgroundColor: colors.border
     },
-    thumbText: {
-        color: theme.colors.textMuted,
-        fontSize: 10,
-        fontWeight: '600'
-    },
+
     cardMeta: {
         flex: 1
     },
+
     cardName: {
-        color: theme.colors.textPrimary,
-        fontSize: theme.font.base,
+        color: colors.textPrimary,
+        fontSize: 14,
         fontWeight: '500'
     },
+
     cardDates: {
-        color: theme.colors.textMuted,
+        color: colors.textMuted,
         fontSize: 12,
         marginTop: 2
     },
-    expiredBadge: {
-        backgroundColor: '#2a1a1a',
-        borderRadius: 20,
-        borderWidth: 0.5,
-        borderColor: theme.colors.red + '88',
-        paddingHorizontal: 8,
-        paddingVertical: 3
-    },
-    expiredBadgeText: {
-        color: theme.colors.red,
-        fontSize: 10,
-        fontWeight: '600'
-    },
+
     cardActions: {
         flexDirection: 'row',
         borderTopWidth: 0.5,
-        borderTopColor: theme.colors.border
+        borderTopColor: colors.border
     },
+
     cardAction: {
         flex: 1,
         paddingVertical: 10,
         alignItems: 'center'
     },
+
     cardActionLeft: {
         borderRightWidth: 0.5,
-        borderRightColor: theme.colors.border
+        borderRightColor: colors.border
     },
+
     viewText: {
-        color: theme.colors.accent,
+        color: colors.accent,
         fontSize: 12,
         fontWeight: '500'
     },
+
     deleteText: {
-        color: theme.colors.red,
+        color: colors.red,
         fontSize: 12,
         fontWeight: '500'
     },
+
     emptyState: {
-        flex: 1,
-        backgroundColor: theme.colors.bgBody,
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 40
+        marginTop: 40,
+        alignItems: 'center'
     },
-    emptyTitle: {
-        color: theme.colors.textPrimary,
-        fontSize: theme.font.lg,
-        fontWeight: '500',
-        marginBottom: 8
-    },
-    emptySub: {
-        color: theme.colors.textMuted,
-        fontSize: theme.font.md,
-        textAlign: 'center',
-        lineHeight: 22
+
+    emptyText: {
+        color: colors.textMuted,
+        fontSize: 14
     }
 });
