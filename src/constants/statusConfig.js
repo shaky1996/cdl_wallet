@@ -24,5 +24,11 @@ export const STATUS_CONFIG = {
         bg: theme.colors.red + '33',
         border: theme.colors.red,
         text: theme.colors.red
+    },
+    archived: {
+        label: 'Archived',
+        bg: theme.colors.amber + '33',
+        border: theme.colors.amber,
+        text: theme.colors.amber
     }
 };
