@@ -11,6 +11,7 @@
     "ios": {
       "bundleIdentifier": "com.yourname.cdlwallet",
       "infoPlist": {
+        "NSFaceIDUsageDescription": "Use Face ID to unlock your CDL Wallet",
         "NSCameraUsageDescription": "Take a photo of your CDL or med card",
         "NSPhotoLibraryUsageDescription": "Upload your CDL or med card from photos"
       }

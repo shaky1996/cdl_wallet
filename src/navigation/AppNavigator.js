@@ -12,6 +12,8 @@ import ShareScreen from '../screens/ShareScreen';
 import ArchiveScreen from '../screens/ArchiveScreen';
 import ArchivedDocViewerScreen from '../screens/ArchivedDocViewerScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import LockGate from '../components/LockGate';
+
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -100,20 +102,22 @@ function Tabs() {
 
 export default function AppNavigator() {
     return (
-        <NavigationContainer>
-            <RootStack.Navigator screenOptions={{ headerShown: false }}>
-                {/* MAIN APP */}
-                <RootStack.Screen
-                    name='Tabs'
-                    component={Tabs}
-                />
+        <LockGate>
+            <NavigationContainer>
+                <RootStack.Navigator screenOptions={{ headerShown: false }}>
+                    {/* MAIN APP */}
+                    <RootStack.Screen
+                        name='Tabs'
+                        component={Tabs}
+                    />
 
-                {/* GLOBAL DETAIL SCREEN (FIX) */}
-                <RootStack.Screen
-                    name='ArchivedDocViewer'
-                    component={ArchivedDocViewerScreen}
-                />
-            </RootStack.Navigator>
-        </NavigationContainer>
+                    {/* GLOBAL DETAIL SCREEN (FIX) */}
+                    <RootStack.Screen
+                        name='ArchivedDocViewer'
+                        component={ArchivedDocViewerScreen}
+                    />
+                </RootStack.Navigator>
+            </NavigationContainer>
+        </LockGate>
     );
 }

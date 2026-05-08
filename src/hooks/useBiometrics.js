@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const BIOMETRICS_PREF_KEY = 'cdl_biometrics_enabled';
 // How long the app can be backgrounded before requiring re-auth (ms)
-const LOCK_AFTER_BACKGROUND_MS = 5 * 60 * 1000; // 5 minutes
+const LOCK_AFTER_BACKGROUND_MS = 0; // 5 minutes
 
 export const useBiometrics = () => {
     const [authenticated, setAuthenticated] = useState(false);
