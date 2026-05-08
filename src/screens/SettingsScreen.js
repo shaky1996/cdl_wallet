@@ -18,6 +18,7 @@ import { sweepOrphanFiles } from '../services/storage';
 import { useAsyncError } from '../hooks/useAsyncError';
 import Header from '../components/Header';
 
+
 const BIOMETRICS_PREF_KEY = 'cdl_biometrics_enabled';
 
 export default function SettingsScreen() {
@@ -183,7 +184,7 @@ export default function SettingsScreen() {
                     <Text style={styles.noticeTitle}>Keep your backup on</Text>
                     <Text style={styles.noticeText}>
                         Your documents are stored on this device only. Make sure
-                        iCloud (iPhone) or Google One (Android) backup is
+                        iCloud backup is
                         enabled so your data transfers to a new phone
                         automatically.
                     </Text>

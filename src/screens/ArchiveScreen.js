@@ -18,6 +18,7 @@ import { formatPrettyDate } from '../utils/dateHelpers';
 import { DOC_LABELS } from '../constants/docTypes';
 import { useAsyncError } from '../hooks/useAsyncError';
 import Header from '../components/Header';
+import InfoBanner from '../components/InfoBanner';
 
 export default function ArchiveScreen({ navigation }) {
     const [archive, setArchive] = useState([]);
@@ -145,14 +146,15 @@ export default function ArchiveScreen({ navigation }) {
             <View style={styles.body}>
                 <Text style={styles.label}>Archived documents</Text>
 
-                <View style={styles.infoBanner}>
-                    <Text style={styles.infoText}>
-                        Employers sometimes ask for proof of a prior valid
-                        document. Keeping archived docs saves you a trip to the
-                        DMV.
-                    </Text>
-                </View>
 
+                <InfoBanner
+                    text={
+                        'Employers sometimes ask for proof of a prior valid document. Keeping archived docs saves you a trip to the DMV.'
+                    }
+                    color={colors.blue}
+                    backgroundColor={'#1a1f2e'}
+                />
+            
                 {archive.length === 0 ? (
                     <View style={styles.emptyState}>
                         <Text style={styles.emptyText}>
@@ -195,20 +197,6 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
         letterSpacing: 1,
         marginBottom: 4
-    },
-
-    infoBanner: {
-        backgroundColor: '#1a1f2e',
-        borderRadius: 12,
-        borderWidth: 0.5,
-        borderColor: colors.blue,
-        padding: 12
-    },
-
-    infoText: {
-        color: colors.blue,
-        fontSize: 12,
-        lineHeight: 18
     },
 
     listContent: {

@@ -18,6 +18,8 @@ import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system/legacy';
 import Header from '../components/Header';
 import { formatPrettyDate } from '../utils/dateHelpers';
+import { theme } from '../styles/theme';
+import InfoBanner from '../components/InfoBanner';
 
 export default function ShareScreen() {
     const [docs, setDocs] = useState({});
@@ -165,10 +167,13 @@ export default function ShareScreen() {
                     autoCapitalize='none'
                 />
 
-                <Text style={styles.infoText}>
-                    Images are converted to PDF before sending. Files never
-                    leave your phone — email is sent from your own mail app.
-                </Text>
+                <InfoBanner
+                    text={
+                        'Images are converted to PDF before sending. Email is sent from your own mail app.'
+                    }
+                    color={colors.blue}
+                    backgroundColor={'#1a1f2e'}
+                />
 
                 {/* EMAIL BUTTON */}
                 <TouchableOpacity
@@ -256,15 +261,7 @@ const styles = StyleSheet.create({
         color: colors.textPrimary,
         fontSize: 14
     },
-    infoText: {
-        color: colors.blue,
-        fontSize: 12,
-        lineHeight: 18,
-        backgroundColor: '#1a1f2e',
-        borderRadius: 10,
-        padding: 12,
-        marginTop: 8
-    },
+    
     sendBtn: {
         backgroundColor: colors.accent,
         borderRadius: 12,
@@ -274,7 +271,6 @@ const styles = StyleSheet.create({
     },
     sendBtnText: { color: '#1a1200', fontSize: 15, fontWeight: '600' },
 
-    
     shareBtn: {
         backgroundColor: colors.bgCard,
         borderRadius: 12,
