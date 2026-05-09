@@ -119,7 +119,8 @@ export default function UploadScreen({ navigation, route }) {
 
         const result = await ImagePicker.launchCameraAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            quality: 0.9,
+            quality: 1,
+            aspect: [1.6, 1],
             allowsEditing: true
         });
 
@@ -280,12 +281,14 @@ export default function UploadScreen({ navigation, route }) {
                     >
                         <Text style={styles.sourceBtnText}>Gallery</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity
+
+                    {/* Option to upload PDF files (Not Needed Right Now) */}
+                    {/* <TouchableOpacity
                         style={styles.sourceBtn}
                         onPress={handleFilePicker}
                     >
                         <Text style={styles.sourceBtnText}>PDF file</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */} 
                 </View>
 
                 <Text style={[styles.label, { marginTop: 20 }]}>

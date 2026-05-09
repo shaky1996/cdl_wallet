@@ -30,6 +30,7 @@ import ExpiryBar from '../components/ExpiryBar';
 import { useAsyncError } from '../hooks/useAsyncError';
 import { colors } from '../constants/colors';
 import BackButtonBar from '../components/BackButtonBar';
+import InfoBanner from '../components/InfoBanner';
 
 
 
@@ -323,7 +324,15 @@ const closeFullScreen = () => {
                             Delete
                         </Text>
                     </TouchableOpacity>
+                    
                 </View>
+                <InfoBanner
+                                    text={
+                                        'When replacing docs, they are automatically added to archive.'
+                                    }
+                                    color={colors.blue}
+                                    backgroundColor={'#1a1f2e'}
+                                />
             </ScrollView>
 
             {/*FULLSCREEN MODAL */}
