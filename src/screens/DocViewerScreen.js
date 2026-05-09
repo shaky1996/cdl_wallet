@@ -107,7 +107,11 @@ const scale = useState(new Animated.Value(0.95))[0];
     };
 
     const handleShare = () => {
-        navigation.navigate('Share');
+        navigation.navigate('Share', {
+            preselect: {
+                [docType]: true
+            }
+        });
     };
     const openFullScreen = () => {
     setIsFullScreen(true);

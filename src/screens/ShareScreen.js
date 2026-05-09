@@ -20,16 +20,43 @@ import Header from '../components/Header';
 import { formatPrettyDate } from '../utils/dateHelpers';
 import { theme } from '../styles/theme';
 import InfoBanner from '../components/InfoBanner';
+import { useRoute } from '@react-navigation/native';
+import { useEffect } from 'react';
 
 export default function ShareScreen() {
     const [docs, setDocs] = useState({});
-    const [selected, setSelected] = useState({ cdl: false, med_card: false });
+    const [selected, setSelected] = useState({
+        cdl: false,
+        med_card: false
+    });
+
     const [email, setEmail] = useState('');
     const [sending, setSending] = useState(false);
+
+    const route = useRoute();
+
+   
+    useEffect(() => {
+        if (route.params?.preselect) {
+            setSelected((prev) => ({
+                ...prev,
+                ...route.params.preselect
+            }));
+        }
+    }, [route.params]);
 
     useFocusEffect(
         useCallback(() => {
             getDocs().then(setDocs);
+
+            return () => {
+                // RESET WHEN SCREEN LOSES FOCUS
+                setSelected({
+                    cdl: false,
+                    med_card: false
+                });
+                setEmail('');
+            };
         }, [])
     );
 
@@ -50,6 +77,9 @@ export default function ShareScreen() {
 
     setSending(true);
 
+
+
+    
     try {
         // 1. Build only selected docs
         const selectedDocs = {};
@@ -261,7 +291,7 @@ const styles = StyleSheet.create({
         color: colors.textPrimary,
         fontSize: 14
     },
-    
+
     sendBtn: {
         backgroundColor: colors.accent,
         borderRadius: 12,
