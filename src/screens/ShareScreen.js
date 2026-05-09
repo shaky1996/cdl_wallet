@@ -35,6 +35,10 @@ export default function ShareScreen() {
 
     const route = useRoute();
 
+    const isValidEmail = (value) => {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+    };
+
    
     useEffect(() => {
         if (route.params?.preselect) {
@@ -63,9 +67,15 @@ export default function ShareScreen() {
     const toggle = (type) => setSelected((s) => ({ ...s, [type]: !s[type] }));
 
     const handleSend = async () => {
-    if (!email.trim()) {
-        return Alert.alert('Enter employer email');
-    }
+        const trimmedEmail = email.trim();
+
+        if (!trimmedEmail) {
+            return Alert.alert('Enter employer email');
+        }
+    
+        if (!isValidEmail(trimmedEmail)) {
+            return Alert.alert('Invalid email', 'Please enter a valid email address.');
+        };
 
     const chosenTypes = Object.keys(selected).filter(
         (t) => selected[t] && docs[t]
@@ -195,6 +205,7 @@ export default function ShareScreen() {
                     placeholderTextColor={colors.textMuted}
                     keyboardType='email-address'
                     autoCapitalize='none'
+                    returnKeyType='done'
                 />
 
                 <InfoBanner
