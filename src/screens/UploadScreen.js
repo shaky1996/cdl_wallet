@@ -288,7 +288,7 @@ export default function UploadScreen({ navigation, route }) {
                         onPress={handleFilePicker}
                     >
                         <Text style={styles.sourceBtnText}>PDF file</Text>
-                    </TouchableOpacity> */} 
+                    </TouchableOpacity> */}
                 </View>
 
                 <Text style={[styles.label, { marginTop: 20 }]}>
@@ -349,6 +349,7 @@ export default function UploadScreen({ navigation, route }) {
                                     value={tempDate}
                                     mode='date'
                                     display='spinner'
+                                    
                                     onChange={(e, date) => {
                                         if (date) setTempDate(date);
                                     }}
@@ -524,7 +525,7 @@ const styles = StyleSheet.create({
 
 pickerBody: {
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
 },
 
 pickerTitle: {

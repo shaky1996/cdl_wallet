@@ -12,6 +12,7 @@ import { colors } from '../constants/colors';
 import { getDocs } from '../services/storage';
 import DocCard from '../components/DocCard';
 import Header from '../components/Header';
+import { testExpiryNotifications } from '../services/notifications';
 
 export default function HomeScreen({ navigation }) {
     const [docs, setDocs] = React.useState({});
@@ -21,6 +22,8 @@ export default function HomeScreen({ navigation }) {
             getDocs().then(setDocs);
         }, [])
     );
+
+    
 
     const handleDelete = async (docType) => {
         const updatedDocs = await deleteDoc(docType);

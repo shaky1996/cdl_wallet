@@ -3,8 +3,9 @@
     "name": "CDL Wallet",
     "slug": "cdl-wallet",
     "version": "1.0.0",
+    "userInterfaceStyle": "dark",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/CDL_Wallet_Icon.png",
     "splash": {
       "backgroundColor": "#111214"
     },
@@ -13,20 +14,28 @@
       "infoPlist": {
         "NSFaceIDUsageDescription": "Use Face ID to unlock your CDL Wallet",
         "NSCameraUsageDescription": "Take a photo of your CDL or med card",
-        "NSPhotoLibraryUsageDescription": "Upload your CDL or med card from photos"
+        "NSPhotoLibraryUsageDescription": "Upload your CDL or med card from photos",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
       "package": "com.yourname.cdlwallet",
       "permissions": [
         "CAMERA",
-        "READ_EXTERNAL_STORAGE"
+        "READ_EXTERNAL_STORAGE",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT"
       ]
     },
     "plugins": [
       "expo-notifications",
       "expo-local-authentication",
       "@react-native-community/datetimepicker"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "24b931ce-e277-400a-9820-4488bedc89bc"
+      }
+    }
   }
 }

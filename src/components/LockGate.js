@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useBiometrics } from '../hooks/useBiometrics';
 import { theme } from '../styles/theme';
+import { colors } from '../constants/colors';
 
 export default function LockGate({ children }) {
     const {
@@ -20,7 +21,7 @@ export default function LockGate({ children }) {
         }
     }, [isChecking]);
 
-    // ⏳ initial check
+    //  initial check
     if (isChecking) {
         return (
             <View style={{ flex: 1, justifyContent: 'center' }}>
@@ -29,7 +30,7 @@ export default function LockGate({ children }) {
         );
     }
 
-    // 🔒 LOCK SCREEN
+    //  LOCK SCREEN
     if (!authenticated) {
         return (
             <View
@@ -37,11 +38,12 @@ export default function LockGate({ children }) {
                     flex: 1,
                     justifyContent: 'center',
                     alignItems: 'center',
-                    gap: 16
+                    gap: 16,
+                    backgroundColor: colors.bgBody
                 }}
             >
                 <Text style={{ color: theme.colors.textPrimary, fontSize: 18 }}>
-                    Unlock with {biometricLabel}
+                    Unlock CDL Wallet
                 </Text>
 
                 <TouchableOpacity
@@ -60,6 +62,6 @@ export default function LockGate({ children }) {
         );
     }
 
-    // ✅ UNLOCKED → show app
+    // UNLOCKED → show app
     return children;
 }
