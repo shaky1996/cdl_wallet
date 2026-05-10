@@ -8,22 +8,23 @@ import {
     ScrollView,
     Switch,
     Alert,
-    ActivityIndicator
+    Linking
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { theme } from '../styles/theme';
 import { common } from '../styles/common';
-import { exportAllData } from '../services/exportData';
-import { sweepOrphanFiles } from '../services/storage';
+// import { exportAllData } from '../services/exportData';
+// import { sweepOrphanFiles } from '../services/storage';
 import { useAsyncError } from '../hooks/useAsyncError';
 import Header from '../components/Header';
+
 
 
 const BIOMETRICS_PREF_KEY = 'cdl_biometrics_enabled';
 
 export default function SettingsScreen() {
     const [biometricsEnabled, setBiometricsEnabled] = useState(true);
-    const [orphanCount, setOrphanCount] = useState(null);
+    // const [orphanCount, setOrphanCount] = useState(null);
     const { loading, run } = useAsyncError();
 
     useEffect(() => {
@@ -48,26 +49,26 @@ export default function SettingsScreen() {
         }
     };
 
-    const handleExport = () => {
-        run(exportAllData, {
-            errorMessage: 'Export failed. Please try again.'
-        });
-    };
+    // const handleExport = () => {
+    //     run(exportAllData, {
+    //         errorMessage: 'Export failed. Please try again.'
+    //     });
+    // };
 
-    const handleOrphanSweep = async () => {
-        run(() => sweepOrphanFiles(), {
-            onSuccess: (count) => {
-                setOrphanCount(count);
-                Alert.alert(
-                    'Storage cleaned',
-                    count > 0
-                        ? `Removed ${count} unused file${count > 1 ? 's' : ''}.`
-                        : 'No orphan files found. Storage is clean.'
-                );
-            },
-            errorMessage: 'Storage cleanup failed.'
-        });
-    };
+    // const handleOrphanSweep = async () => {
+    //     run(() => sweepOrphanFiles(), {
+    //         onSuccess: (count) => {
+    //             setOrphanCount(count);
+    //             Alert.alert(
+    //                 'Storage cleaned',
+    //                 count > 0
+    //                     ? `Removed ${count} unused file${count > 1 ? 's' : ''}.`
+    //                     : 'No orphan files found. Storage is clean.'
+    //             );
+    //         },
+    //         errorMessage: 'Storage cleanup failed.'
+    //     });
+    // };
 
     const handleDeleteAllData = () => {
         Alert.alert(
@@ -130,7 +131,7 @@ export default function SettingsScreen() {
                 </View>
 
                 {/* Data section */}
-                <Text style={[styles.sectionLabel, { marginTop: 24 }]}>
+                {/* <Text style={[styles.sectionLabel, { marginTop: 24 }]}>
                     Data
                 </Text>
                 <View style={styles.settingsGroup}>
@@ -177,16 +178,15 @@ export default function SettingsScreen() {
                         </View>
                         <Text style={styles.arrow}>›</Text>
                     </TouchableOpacity>
-                </View>
+                </View> */}
 
                 {/* Backup notice */}
                 <View style={styles.noticeBanner}>
                     <Text style={styles.noticeTitle}>Keep your backup on</Text>
                     <Text style={styles.noticeText}>
                         Your documents are stored on this device only. Make sure
-                        iCloud backup is
-                        enabled so your data transfers to a new phone
-                        automatically.
+                        iCloud backup is enabled so your data transfers to a new
+                        phone automatically.
                     </Text>
                 </View>
 
@@ -206,9 +206,35 @@ export default function SettingsScreen() {
                     </View>
                     <View style={styles.rowDivider} />
                     <View style={styles.settingRow}>
-                        <Text style={styles.settingName}>Encryption</Text>
-                        <Text style={styles.settingVal}>AES-256</Text>
+                        <Text style={styles.settingName}>Security</Text>
+                        <Text style={styles.settingVal}>
+                            Protected by iPhone security
+                        </Text>
                     </View>
+                    <View style={styles.rowDivider} />
+                    <TouchableOpacity
+                        style={styles.settingRow}
+                        onPress={() =>
+                            Linking.openURL(
+                                'https://cdlwallet-privacypolicy.carrd.co/'
+                            )
+                        }
+                    >
+                        <Text style={styles.settingName}>Privacy Policy</Text>
+                        <Text style={styles.settingVal}>Read ›</Text>
+                    </TouchableOpacity>
+                    <View style={styles.rowDivider} />
+                    <TouchableOpacity
+                        style={styles.settingRow}
+                        onPress={() =>
+                            Linking.openURL(
+                                'https://cdlwallet-termsofuse.carrd.co/'
+                            )
+                        }
+                    >
+                        <Text style={styles.settingName}>Terms of Use</Text>
+                        <Text style={styles.settingVal}>Read ›</Text>
+                    </TouchableOpacity>
                 </View>
 
                 {/* Danger zone */}
@@ -222,9 +248,7 @@ export default function SettingsScreen() {
                     <Text style={styles.deleteBtnText}>Delete all data</Text>
                 </TouchableOpacity>
 
-                <Text style={styles.footer}>
-                    CDL Wallet
-                </Text>
+                <Text style={styles.footer}>CDL Wallet</Text>
             </ScrollView>
         </SafeAreaView>
     );
