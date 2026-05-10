@@ -10,9 +10,12 @@ import {
     ActivityIndicator,
     Platform
 } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
+// import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
+import ImagePicker from 'react-native-image-crop-picker';
+import DocumentScanner from 'react-native-document-scanner-plugin';
+
 import { Image } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -26,6 +29,7 @@ import { useAsyncError } from '../hooks/useAsyncError';
 import { DOC_LABELS } from '../constants/docTypes';
 import BackButtonBar from '../components/BackButtonBar';
 import { formatMMDDYYYY } from '../utils/dateHelpers';
+
 
 export default function UploadScreen({ navigation, route }) {
     const { docType } = route.params;
@@ -47,128 +51,67 @@ export default function UploadScreen({ navigation, route }) {
     return `${year}-${month}-${day}`;
 };
 
-    const cropImage = async (uri) => {
-        try {
-            const manipResult = await ImageManipulator.manipulateAsync(
-                uri,
-                [],
-                {
-                    compress: 0.9,
-                    format: ImageManipulator.SaveFormat.JPEG
-                }
-            );
+    
 
-            const { width, height } = manipResult;
-
-            const cropWidth = width * 0.99; 
-            const cropHeight = height * 0.99; 
-
-            const result = await ImageManipulator.manipulateAsync(
-                uri,
-                [
-                    {
-                        crop: {
-                            originX: (width - cropWidth) / 2,
-                            originY: (height - cropHeight) / 2,
-                            width: cropWidth,
-                            height: cropHeight
-                        }
-                    }
-                ],
-                {
-                    compress: 0.9,
-                    format: ImageManipulator.SaveFormat.JPEG
-                }
-            );
-
-            return result.uri;
-        } catch (e) {
-            console.log('Crop failed:', e);
-            return uri;
-        }
-    };
-
-    const requestCameraPermission = async () => {
-        const { status } = await ImagePicker.requestCameraPermissionsAsync();
-        if (status !== 'granted') {
-            Alert.alert(
-                'Camera access needed',
-                'Please allow camera access in Settings to take a photo of your document.'
-            );
-            return false;
-        }
-        return true;
-    };
-
-    const requestGalleryPermission = async () => {
-        const { status } =
-            await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (status !== 'granted') {
-            Alert.alert(
-                'Gallery access needed',
-                'Please allow photo library access in Settings.'
-            );
-            return false;
-        }
-        return true;
-    };
-
-    const handleCamera = async () => {
-        const granted = await requestCameraPermission();
-        if (!granted) return;
-
-        const result = await ImagePicker.launchCameraAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            quality: 1,
-            aspect: [1.6, 1],
-            allowsEditing: true
+const handleCamera = async () => {
+    try {
+        const { scannedImages } = await DocumentScanner.scanDocument({
+            maxNumDocuments: 1,
+            responseType: 'imageFilePath'
         });
 
-        if (!result.canceled && result.assets?.[0]) {
-            const uri = result.assets[0].uri;
-            const cropped = await cropImage(uri);
-            setImageUri(cropped);
+        if (scannedImages?.length > 0) {
+            setImageUri(scannedImages[0]);
+            setOcrDetected(false);
         }
-    };
+    } catch (e) {
+        console.log('Scanner error:', e);
+        Alert.alert('Camera Error', 'Could not scan document.');
+    }
+};
 
-    const handleGallery = async () => {
-        const granted = await requestGalleryPermission();
-        if (!granted) return;
+const handleGallery = async () => {
+    try {
+        const image = await ImagePicker.openPicker({
+            mediaType: 'photo',
 
-        const result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            quality: 0.9,
-            allowsEditing: true
+            cropping: true,
+
+            freeStyleCropEnabled: true,
+
+            compressImageQuality: 0.9,
+
+            width: 1600,
+            height: 1000
         });
 
-        if (!result.canceled && result.assets?.[0]) {
-            const uri = result.assets[0].uri;
-            const cropped = await cropImage(uri);
-            setImageUri(cropped);
-            setOcrDetected(false);
-        }
-    };
+        setImageUri(image.path);
+        setOcrDetected(false);
+    } catch (e) {
+        console.log('Gallery error:', e);
+    }
+};
+    // Option to get files from the device the file system
+    // const handleFilePicker = async () => {
+    //     try {
+    //         const result = await DocumentPicker.getDocumentAsync({
+    //             type: ['image/*', 'application/pdf'],
+    //             copyToCacheDirectory: true
+    //         });
 
-    const handleFilePicker = async () => {
-        try {
-            const result = await DocumentPicker.getDocumentAsync({
-                type: ['image/*', 'application/pdf'],
-                copyToCacheDirectory: true
-            });
+    //         if (result.canceled) return;
+    //         const uri = result.assets?.[0]?.uri;
+    //         if (!uri) return;
 
-            if (result.canceled) return;
-            const uri = result.assets?.[0]?.uri;
-            if (!uri) return;
-
-            setImageUri(uri);
-            setOcrDetected(false);
-        } catch (e) {
-            Alert.alert(
-                'Error',
-                'Could not open file picker. Please try again.'
-            );
-        }
-    };
+    //         setImageUri(uri);
+    //         setOcrDetected(false);
+    //     } catch (e) {
+    //         Alert.alert(
+    //             'Error',
+    //             'Could not open file picker. Please try again.'
+    //         );
+    //     }
+    // };
 
     
 

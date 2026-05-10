@@ -112,7 +112,7 @@ export default function ShareScreen() {
         const result = await MailComposer.composeAsync({
             recipients: [email.trim()],
             subject: 'CDL Wallet - Driver Documents',
-            body: 'Hello,\n\nPlease find my documents attached.\n\nRegards',
+            body: 'Hello,\n\nPlease find my documents attached.\n\n\nShared via CDL Wallet App',
             attachments: [safeUri]
         });
 
@@ -210,7 +210,7 @@ export default function ShareScreen() {
 
                 <InfoBanner
                     text={
-                        'Images are converted to PDF before sending. Email is sent from your own mail app.'
+                        'Images are converted to PDF before sending. Email is sent from your own email app.'
                     }
                     color={colors.blue}
                     backgroundColor={'#1a1f2e'}

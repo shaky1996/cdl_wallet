@@ -56,20 +56,20 @@ export const scheduleExpiryReminders = async (docType, expiryDateStr) => {
         {
             key: '30',
             daysBefore: 30,
-            title: `${label} expiring soon`,
+            title: `CDL Wallet`,
             body: `Your ${label} expires in 30 days. Time to renew.`
         },
         {
             key: '10',
             daysBefore: 10,
-            title: `${label} — 10 days left`,
-            body: `Don't get pulled off the road. Your ${label} expires in 10 days.`
+            title: `CDL Wallet`,
+            body: `Your ${label} expires in 10 days. Don't get pulled off the road.`
         },
         {
             key: '1',
             daysBefore: 1,
-            title: `${label} — expires tomorrow`,
-            body: `Immediate action required to avoid suspension.`
+            title: `CDL Wallet`,
+            body: `Your ${label} expires tomorrow. Immediate action required.`
         }
     ];
 
