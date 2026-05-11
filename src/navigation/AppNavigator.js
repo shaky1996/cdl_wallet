@@ -13,7 +13,7 @@ import ArchiveScreen from '../screens/ArchiveScreen';
 import ArchivedDocViewerScreen from '../screens/ArchivedDocViewerScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import LockGate from '../components/LockGate';
-
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -102,22 +102,24 @@ function Tabs() {
 
 export default function AppNavigator() {
     return (
-        <LockGate>
-            <NavigationContainer>
-                <RootStack.Navigator screenOptions={{ headerShown: false }}>
-                    {/* MAIN APP */}
-                    <RootStack.Screen
-                        name='Tabs'
-                        component={Tabs}
-                    />
+        <SafeAreaProvider>
+            <LockGate>
+                <NavigationContainer>
+                    <RootStack.Navigator screenOptions={{ headerShown: false }}>
+                        {/* MAIN APP */}
+                        <RootStack.Screen
+                            name='Tabs'
+                            component={Tabs}
+                        />
 
-                    {/* GLOBAL DETAIL SCREEN (FIX) */}
-                    <RootStack.Screen
-                        name='ArchivedDocViewer'
-                        component={ArchivedDocViewerScreen}
-                    />
-                </RootStack.Navigator>
-            </NavigationContainer>
-        </LockGate>
+                        {/* GLOBAL DETAIL SCREEN (FIX) */}
+                        <RootStack.Screen
+                            name='ArchivedDocViewer'
+                            component={ArchivedDocViewerScreen}
+                        />
+                    </RootStack.Navigator>
+                </NavigationContainer>
+            </LockGate>
+        </SafeAreaProvider>
     );
 }

@@ -248,7 +248,8 @@ export default function SettingsScreen() {
                     <Text style={styles.deleteBtnText}>Delete all data</Text>
                 </TouchableOpacity>
 
-                <Text style={styles.footer}>CDL Wallet</Text>
+                <Text style={styles.footer}>CDL Wallet v1.0.0</Text>
+                <Text style={styles.footer}>© 2026 CDL Wallet</Text>
             </ScrollView>
         </SafeAreaView>
     );
