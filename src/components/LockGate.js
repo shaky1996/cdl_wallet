@@ -1,5 +1,12 @@
-import React, { useEffect } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    ActivityIndicator,
+    AppState
+} from 'react-native';
+
 import { useBiometrics } from '../hooks/useBiometrics';
 import { theme } from '../styles/theme';
 import { colors } from '../constants/colors';
@@ -14,14 +21,37 @@ export default function LockGate({ children }) {
         biometricLabel
     } = useBiometrics();
 
-    // 🔥 auto-trigger Face ID
+    const appState = useRef(AppState.currentState);
+
+    //  Auto-trigger biometric on mount / state change
     useEffect(() => {
         if (!isChecking && isSupported && isEnabled && !authenticated) {
             authenticate();
         }
-    }, [isChecking]);
+    }, [isChecking, isSupported, isEnabled, authenticated]);
 
-    //  initial check
+    //  Re-trigger when app comes back from background
+    useEffect(() => {
+        const subscription = AppState.addEventListener(
+            'change',
+            (nextAppState) => {
+                if (
+                    appState.current.match(/inactive|background/) &&
+                    nextAppState === 'active'
+                ) {
+                    if (isSupported && isEnabled) {
+                        authenticate();
+                    }
+                }
+
+                appState.current = nextAppState;
+            }
+        );
+
+        return () => subscription.remove();
+    }, [isSupported, isEnabled, authenticate]);
+
+    // Initial loading state
     if (isChecking) {
         return (
             <View style={{ flex: 1, justifyContent: 'center' }}>
@@ -30,7 +60,7 @@ export default function LockGate({ children }) {
         );
     }
 
-    //  LOCK SCREEN
+    // Locked screen
     if (!authenticated) {
         return (
             <View
@@ -62,6 +92,6 @@ export default function LockGate({ children }) {
         );
     }
 
-    // UNLOCKED → show app
+    // Unlocked app
     return children;
 }
