@@ -1,52 +1,97 @@
 import { useState, useEffect, useRef } from 'react';
-import { AppState, Alert } from 'react-native';
+import { AppState } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const BIOMETRICS_PREF_KEY = 'cdl_biometrics_enabled';
-// How long the app can be backgrounded before requiring re-auth (ms)
-const LOCK_AFTER_BACKGROUND_MS = 10; // 5 minutes
 
 export const useBiometrics = () => {
-    const [authenticated, setAuthenticated] = useState(false);
-    const [isSupported, setIsSupported] = useState(false);
-    const [isEnabled, setIsEnabled] = useState(true);
+    const [isLocked, setIsLocked] = useState(true);
     const [isChecking, setIsChecking] = useState(true);
-    const [biometricType, setBiometricType] = useState(null); // 'face' | 'fingerprint' | null
+    const [isSupported, setIsSupported] = useState(false);
+    const [biometricType, setBiometricType] = useState(null);
 
     const appState = useRef(AppState.currentState);
-    const backgroundedAt = useRef(null);
+    const isAuthenticating = useRef(false);
 
-    useEffect(() => {
-        initialCheck();
+    // 🚨 KEY FIX: prevents Face ID loop after success
+    const didJustAuthenticate = useRef(false);
 
-        // Re-lock when app comes back from background
-        const subscription = AppState.addEventListener(
-            'change',
-            handleAppStateChange
-        );
-        return () => subscription.remove();
-    }, []);
+    const authenticate = async () => {
+        if (isAuthenticating.current) return false;
 
-    const initialCheck = async () => {
-        setIsChecking(true);
+        isAuthenticating.current = true;
+
         try {
-            const [compatible, enrolled, prefRaw] = await Promise.all([
+            const result = await LocalAuthentication.authenticateAsync({
+                promptMessage: 'Unlock CDL Wallet',
+                disableDeviceFallback: false,
+                cancelLabel: 'Cancel'
+            });
+
+            if (result.success) {
+                setIsLocked(false);
+
+                // prevent immediate re-trigger from AppState
+                didJustAuthenticate.current = true;
+
+                setTimeout(() => {
+                    didJustAuthenticate.current = false;
+                }, 2000);
+
+                return true;
+            }
+
+            setIsLocked(true);
+            return false;
+        } catch (e) {
+            console.log('Auth error:', e);
+            setIsLocked(true);
+            return false;
+        } finally {
+            isAuthenticating.current = false;
+        }
+    };
+
+    const handleAppState = (nextState) => {
+        const prev = appState.current;
+
+        console.log('APP STATE:', prev, '→', nextState);
+
+        // 🔒 lock only when leaving app
+        if (prev === 'active' && nextState !== 'active') {
+            setIsLocked(true);
+        }
+
+        // 🔓 unlock attempt only when coming back from background
+        if (
+            prev !== 'active' &&
+            nextState === 'active' &&
+            !didJustAuthenticate.current
+        ) {
+            setIsLocked(true);
+
+            setTimeout(() => {
+                authenticate();
+            }, 500);
+        }
+
+        appState.current = nextState;
+    };
+
+    const init = async () => {
+        setIsChecking(true);
+
+        try {
+            const [hardware, enrolled] = await Promise.all([
                 LocalAuthentication.hasHardwareAsync(),
-                LocalAuthentication.isEnrolledAsync(),
-                AsyncStorage.getItem(BIOMETRICS_PREF_KEY)
+                LocalAuthentication.isEnrolledAsync()
             ]);
 
-            const supported = compatible && enrolled;
-            const enabled = prefRaw !== 'false'; // default true if never set
-
+            const supported = hardware && enrolled;
             setIsSupported(supported);
-            setIsEnabled(enabled);
 
-            // Detect biometric type for UI label ("Face ID" vs "Touch ID")
             if (supported) {
                 const types =
                     await LocalAuthentication.supportedAuthenticationTypesAsync();
+
                 if (
                     types.includes(
                         LocalAuthentication.AuthenticationType
@@ -61,102 +106,27 @@ export const useBiometrics = () => {
                 ) {
                     setBiometricType('fingerprint');
                 }
-            }
 
-            // If biometrics not supported or disabled by user, skip auth
-            if (!supported || !enabled) {
-                setAuthenticated(true);
+                setIsLocked(true);
+            } else {
+                setIsLocked(false);
             }
         } catch (e) {
-            console.error('Biometrics check error:', e.message);
-            // Fail open — don't lock out the user if biometrics crashes
-            setAuthenticated(true);
+            console.log('init error:', e);
+            setIsLocked(false);
         } finally {
             setIsChecking(false);
         }
     };
 
-    const handleAppStateChange = async (nextState) => {
-        // App going to background — record the time
-        if (
-            appState.current === 'active' &&
-            (nextState === 'background' || nextState === 'inactive')
-        ) {
-            backgroundedAt.current = Date.now();
-        }
+    useEffect(() => {
+        init();
 
-        // App coming back to foreground
-        if (
-            (appState.current === 'background' ||
-                appState.current === 'inactive') &&
-            nextState === 'active'
-        ) {
-            const wasBackgroundedFor =
-                Date.now() - (backgroundedAt.current || 0);
+        const sub = AppState.addEventListener('change', handleAppState);
 
-            // Re-lock only if app was in background for longer than the threshold
-            if (wasBackgroundedFor > LOCK_AFTER_BACKGROUND_MS) {
-                const enabled = await AsyncStorage.getItem(BIOMETRICS_PREF_KEY);
-                if (enabled !== 'false' && isSupported) {
-                    setAuthenticated(false);
-                    // Automatically prompt — don't make user tap a button
-                    await authenticate();
-                }
-            }
-        }
+        return () => sub.remove();
+    }, []);
 
-        appState.current = nextState;
-    };
-
-    // Prompt the OS biometric dialog
-    const authenticate = async () => {
-        try {
-            const result = await LocalAuthentication.authenticateAsync({
-                promptMessage: 'Unlock CDL Wallet',
-                fallbackLabel: 'Use PIN',
-                // Allow device PIN/passcode as fallback (required by Apple guidelines)
-                disableDeviceFallback: false,
-                cancelLabel: 'Cancel'
-            });
-
-            if (result.success) {
-                setAuthenticated(true);
-                return true;
-            }
-
-            // User cancelled or biometrics failed
-            if (result.error === 'user_cancel') {
-                // Don't show an alert — user chose to cancel
-                return false;
-            }
-
-            // Too many failed attempts — device fallback kicks in automatically
-            if (
-                result.error === 'lockout' ||
-                result.error === 'lockout_permanent'
-            ) {
-                Alert.alert(
-                    'Too many attempts',
-                    'Biometrics locked. Use your device PIN to unlock.'
-                );
-                return false;
-            }
-
-            // Any other error — show a generic message
-            Alert.alert(
-                'Authentication failed',
-                'Could not verify your identity. Please try again.'
-            );
-            return false;
-        } catch (e) {
-            console.error('Authentication error:', e.message);
-            // Fail open — if auth crashes, don't permanently lock the user out
-            setAuthenticated(true);
-            return true;
-        }
-    };
-
-    // Human-readable label for UI ("Face ID", "Touch ID", "Biometrics")
     const biometricLabel =
         biometricType === 'face'
             ? 'Face ID'
@@ -165,15 +135,11 @@ export const useBiometrics = () => {
               : 'Biometrics';
 
     return {
-        // State
-        authenticated,
-        isSupported,
-        isEnabled,
+        isLocked,
         isChecking,
+        isSupported,
         biometricType,
         biometricLabel,
-
-        // Actions
         authenticate
     };
 };

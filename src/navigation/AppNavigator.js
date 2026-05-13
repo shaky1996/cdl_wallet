@@ -15,6 +15,8 @@ import SettingsScreen from '../screens/SettingsScreen';
 import LockGate from '../components/LockGate';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 const RootStack = createNativeStackNavigator();
@@ -103,8 +105,10 @@ function Tabs() {
 export default function AppNavigator() {
     return (
         <SafeAreaProvider>
-            <LockGate>
-                <NavigationContainer>
+                    
+
+            <NavigationContainer>
+                <LockGate>
                     <RootStack.Navigator screenOptions={{ headerShown: false }}>
                         {/* MAIN APP */}
                         <RootStack.Screen
@@ -118,8 +122,9 @@ export default function AppNavigator() {
                             component={ArchivedDocViewerScreen}
                         />
                     </RootStack.Navigator>
-                </NavigationContainer>
-            </LockGate>
+                </LockGate>
+            </NavigationContainer>
+            
         </SafeAreaProvider>
     );
 }

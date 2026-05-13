@@ -23,7 +23,7 @@ import Header from '../components/Header';
 const BIOMETRICS_PREF_KEY = 'cdl_biometrics_enabled';
 
 export default function SettingsScreen() {
-    const [biometricsEnabled, setBiometricsEnabled] = useState(true);
+
     // const [orphanCount, setOrphanCount] = useState(null);
     const { loading, run } = useAsyncError();
 
@@ -107,7 +107,7 @@ export default function SettingsScreen() {
                 contentContainerStyle={styles.scrollContent}
             >
                 {/* Security section */}
-                <Text style={styles.sectionLabel}>Security</Text>
+                {/* <Text style={styles.sectionLabel}>Security</Text>
                 <View style={styles.settingsGroup}>
                     <View style={styles.settingRow}>
                         <View style={styles.settingInfo}>
@@ -128,7 +128,7 @@ export default function SettingsScreen() {
                             thumbColor='#fff'
                         />
                     </View>
-                </View>
+                </View> */}
 
                 {/* Data section */}
                 {/* <Text style={[styles.sectionLabel, { marginTop: 24 }]}>
