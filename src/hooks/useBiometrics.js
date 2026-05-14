@@ -55,14 +55,15 @@ export const useBiometrics = () => {
 
         console.log('APP STATE:', prev, '→', nextState);
 
-        // 🔒 lock only when leaving app
-        if (prev === 'active' && nextState !== 'active') {
+        // 🔒 lock only when truly leaving app
+        if (prev === 'active' && nextState === 'background') {
             setIsLocked(true);
         }
 
-        // 🔓 unlock attempt only when coming back from background
+        // 🔓 ONLY trigger when coming from BACKGROUND
+        // (NOT inactive → fixes camera/gallery issue)
         if (
-            prev !== 'active' &&
+            prev === 'background' &&
             nextState === 'active' &&
             !didJustAuthenticate.current
         ) {
