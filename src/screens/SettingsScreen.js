@@ -107,8 +107,8 @@ export default function SettingsScreen() {
                 contentContainerStyle={styles.scrollContent}
             >
                 {/* Security section */}
-                {/* <Text style={styles.sectionLabel}>Security</Text>
-                <View style={styles.settingsGroup}>
+                <Text style={styles.sectionLabel}>Back Up</Text>
+                {/*<View style={styles.settingsGroup}>
                     <View style={styles.settingRow}>
                         <View style={styles.settingInfo}>
                             <Text style={styles.settingName}>
