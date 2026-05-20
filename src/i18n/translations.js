@@ -68,32 +68,38 @@ export const translations = {
         onboarding: {
             next: 'Next',
             skip: 'Skip',
-            getStarted: 'Get started',
+            getStarted: 'Get Started',
+
             intro: {
-                title: 'CDL Wallet keeps your driver docs ready',
+                title: 'Your CDL documents, always within reach',
                 text: '',
-                visual: 'Store your CDL documents in one place and keep track of what is valid, expiring soon, or already expired.'
+                visual: 'Keep your CDL and driver documents organized in one secure place. Instantly see what is valid, expiring soon, or already expired.'
             },
+
             home: {
-                title: 'Upload from the home screen',
-                text: 'Tap to upload your CDL to add a document. Use the camera or gallery, then choose the expiration date and save.'
+                title: 'Upload documents in seconds',
+                text: 'Add your CDL documents right from the home screen. Use your camera or gallery, set the expiration date, and save everything in one place.'
             },
+
             viewer: {
-                title: 'Open any document to review it',
-                text: 'Tap a document to view its image, status, expiration date, remaining days, and options to replace, share, or delete it.'
+                title: 'View and manage every document',
+                text: 'Open any document to check its image, status, expiration date, remaining time, and quick actions to replace, share, or delete it.'
             },
+
             share: {
-                title: 'Share your docs in PDF format',
-                text: 'Select documents to share. CDL Wallet automatically converts images to PDF before sending them via email or other apps.”'
+                title: 'Share documents as clean PDFs',
+                text: 'Choose the documents you need and send them with confidence. CDL Wallet automatically converts images into professional PDF files before sharing.'
             },
+
             archive: {
-                title: 'Keep older documents in Archive',
-                text: 'When you replace a document, the old one is archived. You can also upload older CDL or med card copies yourself thorugh the Arhive screen.'
+                title: 'Never lose older document copies',
+                text: 'When a document is replaced, the previous version is safely moved to Archive. You can also upload older CDL or medical card copies anytime.'
             },
+
             security: {
-                title: 'Your documents stay on your phone',
-                text: 'CDL Wallet does not upload your documents to a server. Files are stored locally on this device.',
-                visual: 'On-device storage only'
+                title: 'Your documents stay on your device',
+                text: 'CDL Wallet does not upload your files to external servers. Everything is stored locally on your phone for added privacy and control.',
+                visual: 'Stored locally on your device'
             }
         },
         upload: {
@@ -280,31 +286,37 @@ export const translations = {
             next: 'Далее',
             skip: 'Пропустить',
             getStarted: 'Начать',
+
             intro: {
-                title: 'CDL Wallet хранит ваши коммерческие документы под рукой',
+                title: 'Ваши CDL-документы всегда под рукой',
                 text: '',
-                visual: 'Храните все CDL-документы в одном месте и отслеживайте, какие из них действительны, скоро истекают или уже просрочены.'
+                visual: 'Храните CDL и другие документы в одном безопасном месте. Сразу увидете, какие документы действительны, скоро истекают или уже просрочены.'
             },
+
             home: {
-                title: 'Загружайте документы с главного экрана',
-                text: 'Нажмите, чтобы добавить CDL-документ. Используйте камеру или галерею, затем выберите дату окончания и сохраните документ.'
+                title: 'Загружайте документы за секунды',
+                text: 'Добавляйте CDL-документы прямо с главного экрана. Используйте камеру или галерею, укажите дату окончания срока и сохраняйте всё в одном месте.'
             },
+
             viewer: {
-                title: 'Откройте документ для просмотра',
-                text: 'Нажмите на документ, чтобы увидеть изображение, статус, дату окончания, оставшиеся дни, а также действия для замены, отправки или удаления документа.'
+                title: 'Просматривайте и управляйте документами',
+                text: 'Откройте любой документ, чтобы увидеть изображение, статус, дату окончания, оставшееся время, а также быстрые действия для замены, отправки или удаления документа.'
             },
+
             share: {
-                title: 'Отправляйте документы в PDF формате',
-                text: 'Выберите документы для отправки. CDL Wallet автоматически конвертирует изображения в PDF перед отправкой по email или через другие приложения.'
+                title: 'Отправляйте документы в PDF',
+                text: 'Выберите нужные документы и делитесь ими без лишних действий. CDL Wallet автоматически конвертирует изображения в аккуратные PDF-файлы перед отправкой.'
             },
+
             archive: {
-                title: 'Храните старые документы в Архиве',
-                text: 'При замене документа старая версия автоматически переносится в Архив. Вы также можете самостоятельно загружать старые копии CDL или медкарты через экран Архива.'
+                title: 'Старые копии всегда остаются в Архиве',
+                text: 'При замене документа предыдущая версия автоматически сохраняется в Архиве. Вы также можете вручную загружать старые копии CDL или медкарты в любое время.'
             },
+
             security: {
-                title: 'Ваши документы остаются только на телефоне',
-                text: 'CDL Wallet не загружает ваши документы на внешние сервера. Все файлы хранятся локально на вашем устройстве.',
-                visual: 'Только локальное хранение'
+                title: 'Ваши документы хранятся только на вашем устройстве',
+                text: 'CDL Wallet не загружает файлы на внешние серверы. Все документы хранятся локально на вашем телефоне для большей конфиденциальности и контроля.',
+                visual: 'Локальное хранение на устройстве'
             }
         },
         upload: {
