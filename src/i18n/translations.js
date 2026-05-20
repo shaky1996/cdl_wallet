@@ -67,6 +67,8 @@ export const translations = {
         },
         upload: {
             title: 'Upload {docLabel}',
+            archiveTitle: 'Upload old document',
+            documentType: 'Document type',
             documentImage: 'Document image',
             noDocumentSelected: 'No document selected',
             camera: 'Camera',
@@ -87,6 +89,7 @@ export const translations = {
             checkExpiryDate: 'Check expiry date',
             savedTitle: 'Saved',
             savedMessage: 'Your {docLabel} has been saved.',
+            archiveSavedMessage: 'Old {docLabel} has been added to archive.',
             saveError: 'Could not save your {docLabel}. Please try again.'
         },
         shareScreen: {
@@ -111,6 +114,7 @@ export const translations = {
             archivedDocuments: 'Archived documents',
             info: 'Employers sometimes ask for proof of a prior valid document. Keeping archived docs saves you a trip to the DMV.',
             empty: 'No archived documents',
+            uploadOldDocument: 'Upload old document',
             expirationDate: 'Expiration date: {date}',
             addedToArchive: 'Added to archive: {date}',
             view: 'View',
@@ -243,6 +247,8 @@ export const translations = {
         },
         upload: {
             title: 'Загрузить {docLabel}',
+            archiveTitle: 'Загрузить старый документ',
+            documentType: 'Тип документа',
             documentImage: 'Изображение документа',
             noDocumentSelected: 'Загрузить документ',
             camera: 'Камера',
@@ -250,7 +256,7 @@ export const translations = {
             pdfFile: 'PDF-файл',
             expiryDate: 'Дата истечения',
             dateFormat: 'ММ-ДД-ГГГГ',
-            dateExample: 'например 04-25-2026',
+            dateExample: 'напр. 04-25-2026',
             selectDate: 'Выберите дату',
             done: 'Готово',
             remindersPreview:
@@ -262,7 +268,9 @@ export const translations = {
             invalidDate: 'Неверный формат даты. Используйте ММ-ДД-ГГГГ.',
             checkExpiryDate: 'Проверьте дату истечения',
             savedTitle: 'Сохранено',
-            savedMessage: 'Ваш документ {docLabel} сохранен.',
+            savedMessage: 'Ваш  {docLabel} сохранен.',
+            archiveSavedMessage:
+                'Старый документ {docLabel} добавлен в архив.',
             saveError:
                 'Не удалось сохранить документ {docLabel}. Попробуйте еще раз.'
         },
@@ -288,6 +296,7 @@ export const translations = {
             archivedDocuments: 'Архивные документы',
             info: 'Работодатели иногда просят подтвердить ваш опыт работы. Архив поможет избежать лишней поездки в DMV.',
             empty: 'Архив пустой',
+            uploadOldDocument: 'Загрузить старый документ',
             expirationDate: 'Дата истечения: {date}',
             addedToArchive: 'Добавлено в архив: {date}',
             view: 'Открыть',

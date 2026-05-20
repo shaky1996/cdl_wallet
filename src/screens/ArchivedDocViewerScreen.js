@@ -15,7 +15,7 @@ import {
 
 import { theme } from '../styles/theme';
 import { common } from '../styles/common';
-import { loadDocFileBase64 } from '../services/fileSystem';
+import { deleteArchivedFile, loadDocFileBase64 } from '../services/fileSystem';
 import { deleteArchivedDoc } from '../services/storage';
 import BackButtonBar from '../components/BackButtonBar';
 import { formatPrettyDate } from '../utils/dateHelpers';
@@ -95,6 +95,7 @@ export default function ArchivedDocViewerScreen({ navigation, route }) {
                     text: t('common.delete'),
                     style: 'destructive',
                     onPress: async () => {
+                        await deleteArchivedFile(item.localUri);
                         await deleteArchivedDoc(item.id);
                         navigation.goBack();
                     }

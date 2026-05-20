@@ -14,6 +14,7 @@ import { useFocusEffect } from '@react-navigation/native';
 
 import { colors } from '../constants/colors';
 import { getArchive, deleteArchivedDoc } from '../services/storage';
+import { deleteArchivedFile } from '../services/fileSystem';
 import { formatPrettyDate } from '../utils/dateHelpers';
 import { useAsyncError } from '../hooks/useAsyncError';
 import Header from '../components/Header';
@@ -59,7 +60,10 @@ export default function ArchiveScreen({ navigation }) {
                     text: t('common.delete'),
                     style: 'destructive',
                     onPress: () =>
-                        run(() => deleteArchivedDoc(item.id), {
+                        run(async () => {
+                            await deleteArchivedFile(item.localUri);
+                            await deleteArchivedDoc(item.id);
+                        }, {
                             onSuccess: () =>
                                 setArchive((prev) =>
                                     prev.filter((d) => d.id !== item.id)
@@ -74,6 +78,10 @@ export default function ArchiveScreen({ navigation }) {
 
     const handleView = (item) => {
         navigation.navigate('ArchivedDocViewer', { item });
+    };
+
+    const handleUploadOldDocument = () => {
+        navigation.navigate('ArchiveUpload', { archiveOnly: true });
     };
 
     const renderItem = ({ item }) => (
@@ -165,6 +173,15 @@ export default function ArchiveScreen({ navigation }) {
                     color={colors.blue}
                     backgroundColor={'#1a1f2e'}
                 />
+
+                <TouchableOpacity
+                    style={styles.uploadBtn}
+                    onPress={handleUploadOldDocument}
+                >
+                    <Text style={styles.uploadBtnText}>
+                        {t('archive.uploadOldDocument')}
+                    </Text>
+                </TouchableOpacity>
             
                 {archive.length === 0 ? (
                     <View style={styles.emptyState}>
@@ -290,5 +307,19 @@ const styles = StyleSheet.create({
     emptyText: {
         color: colors.textMuted,
         fontSize: 14
+    },
+
+    uploadBtn: {
+        backgroundColor: colors.accent,
+        marginTop: 12,
+        borderRadius: 12,
+        padding: 14,
+        alignItems: 'center'
+    },
+
+    uploadBtnText: {
+        color: '#1a1200',
+        fontSize: 14,
+        fontWeight: '600'
     }
 });

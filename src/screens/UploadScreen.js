@@ -21,7 +21,11 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 import { theme } from '../styles/theme';
 import { common } from '../styles/common';
-import { saveDocFile, moveToArchive } from '../services/fileSystem';
+import {
+    saveArchivedDocFile,
+    saveDocFile,
+    moveToArchive
+} from '../services/fileSystem';
 import { saveDoc, getDocs, archiveDoc } from '../services/storage';
 
 import { scheduleExpiryReminders } from '../services/notifications';
@@ -32,8 +36,11 @@ import { useLanguage } from '../i18n/LanguageContext';
 
 
 export default function UploadScreen({ navigation, route }) {
-    const { docType } = route.params;
+    const { archiveOnly = false, docType: initialDocType = 'cdl' } =
+        route.params || {};
     const { locale, t } = useLanguage();
+    const [selectedDocType, setSelectedDocType] = useState(initialDocType);
+    const docType = selectedDocType;
     const docLabel = t(`docs.${docType}`);
 
     const [imageUri, setImageUri] = useState(null);
@@ -140,6 +147,24 @@ const handleGallery = async () => {
 
         run(
             async () => {
+                const formattedExpiry = formatLocalDate(tempDate);
+
+                if (archiveOnly) {
+                    const localUri = await saveArchivedDocFile(
+                        docType,
+                        imageUri
+                    );
+
+                    await archiveDoc(docType, {
+                        localUri,
+                        expiryDate: formattedExpiry,
+                        uploadedAt: new Date().toISOString(),
+                        label: docLabel
+                    });
+
+                    return;
+                }
+
                 // 1. Get current docs
                 const existingDocs = await getDocs();
                 const existing = existingDocs[docType];
@@ -161,8 +186,6 @@ const handleGallery = async () => {
                 // 3. Save new doc
                 const localUri = await saveDocFile(docType, imageUri);
 
-                const formattedExpiry = formatLocalDate(tempDate);
-
                 await saveDoc(docType, {
                     localUri,
                     expiryDate: formattedExpiry,
@@ -175,7 +198,9 @@ const handleGallery = async () => {
             },
             {
                 onSuccess: () => {
-                    Alert.alert(t('upload.savedTitle'), t('upload.savedMessage', { docLabel }), [
+                    Alert.alert(t('upload.savedTitle'), archiveOnly
+                        ? t('upload.archiveSavedMessage', { docLabel })
+                        : t('upload.savedMessage', { docLabel }), [
                         { text: t('common.ok'), onPress: () => navigation.goBack() }
                     ]);
                 },
@@ -187,7 +212,11 @@ const handleGallery = async () => {
     return (
         <SafeAreaView style={common.safeArea}>
             <BackButtonBar
-                title={t('upload.title', { docLabel })}
+                title={
+                    archiveOnly
+                        ? t('upload.archiveTitle')
+                        : t('upload.title', { docLabel })
+                }
                 onBack={() => navigation.goBack()}
             />
 
@@ -196,6 +225,41 @@ const handleGallery = async () => {
                 contentContainerStyle={styles.scrollContent}
                 keyboardShouldPersistTaps='handled'
             >
+                {archiveOnly ? (
+                    <>
+                        <Text style={styles.label}>
+                            {t('upload.documentType')}
+                        </Text>
+                        <View style={styles.docTypeOptions}>
+                            {['cdl', 'med_card'].map((type) => {
+                                const isSelected = selectedDocType === type;
+
+                                return (
+                                    <TouchableOpacity
+                                        key={type}
+                                        style={[
+                                            styles.docTypeOption,
+                                            isSelected &&
+                                                styles.docTypeOptionSelected
+                                        ]}
+                                        onPress={() => setSelectedDocType(type)}
+                                    >
+                                        <Text
+                                            style={[
+                                                styles.docTypeOptionText,
+                                                isSelected &&
+                                                    styles.docTypeOptionTextSelected
+                                            ]}
+                                        >
+                                            {t(`docs.${type}`)}
+                                        </Text>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
+                    </>
+                ) : null}
+
                 <Text style={styles.label}>{t('upload.documentImage')}</Text>
 
                 {imageUri ? (
@@ -298,14 +362,18 @@ const handleGallery = async () => {
                                     onChange={(e, date) => {
                                         if (date) setTempDate(date);
                                     }}
-                                    minimumDate={new Date()}
+                                    minimumDate={
+                                        archiveOnly ? undefined : new Date()
+                                    }
                                 />
                             </View>
                         </View>
                     )}
                 </TouchableOpacity>
 
-                {expiryDate && !isNaN(new Date(expiryDate).getTime()) && (
+                {!archiveOnly &&
+                    expiryDate &&
+                    !isNaN(new Date(expiryDate).getTime()) && (
                     <View style={styles.reminderPreview}>
                         <Text style={styles.reminderText}>
                             {t('upload.remindersPreview')}
@@ -386,6 +454,32 @@ const styles = StyleSheet.create({
         color: theme.colors.textPrimary,
         fontSize: theme.font.md,
         fontWeight: '500'
+    },
+    docTypeOptions: {
+        flexDirection: 'row',
+        gap: theme.spacing.sm,
+        marginBottom: theme.spacing.lg
+    },
+    docTypeOption: {
+        flex: 1,
+        backgroundColor: theme.colors.bgCard,
+        borderRadius: theme.radius.md,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        padding: theme.spacing.md,
+        alignItems: 'center'
+    },
+    docTypeOptionSelected: {
+        backgroundColor: theme.colors.accent,
+        borderColor: theme.colors.accent
+    },
+    docTypeOptionText: {
+        color: theme.colors.textPrimary,
+        fontSize: theme.font.md,
+        fontWeight: '600'
+    },
+    docTypeOptionTextSelected: {
+        color: '#1a1200'
     },
     ocrRunning: {
         flexDirection: 'row',

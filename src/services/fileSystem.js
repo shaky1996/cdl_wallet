@@ -27,6 +27,15 @@ export const saveDocFile = async (docType, sourceUri) => {
     return dest;
 };
 
+// Save a manually uploaded old doc directly to archive/ directory
+export const saveArchivedDocFile = async (docType, sourceUri) => {
+    await ensureDirs();
+    const ext = sourceUri.split('.').pop().split('?')[0] || 'jpg';
+    const dest = ARCHIVE_DIR + `${docType}_${Date.now()}.${ext}`;
+    await FileSystem.copyAsync({ from: sourceUri, to: dest });
+    return dest;
+};
+
 // Move active doc to archive/ before replacing
 export const moveToArchive = async (docType, localUri) => {
     await ensureDirs();

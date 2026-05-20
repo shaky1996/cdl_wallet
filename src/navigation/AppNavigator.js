@@ -128,6 +128,10 @@ export default function AppNavigator() {
                             name='ArchivedDocViewer'
                             component={ArchivedDocViewerScreen}
                         />
+                        <RootStack.Screen
+                            name='ArchiveUpload'
+                            component={UploadScreen}
+                        />
                     </RootStack.Navigator>
                 </LockGate>
             </NavigationContainer>
