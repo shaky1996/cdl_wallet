@@ -112,9 +112,7 @@ export default function SettingsScreen() {
                 <View style={styles.settingsGroup}>
                     <View style={styles.settingRowColumn}>
                         <View style={styles.settingInfo}>
-                            <Text style={styles.settingName}>
-                                {t('settings.appLanguage')}
-                            </Text>
+                           
                             <Text style={styles.settingSub}>
                                 {t('settings.appLanguageSub')}
                             </Text>
@@ -423,7 +421,6 @@ const styles = StyleSheet.create({
         borderWidth: 0.5,
         borderColor: theme.colors.green + '88',
         padding: theme.spacing.md,
-        marginTop: theme.spacing.md
     },
     noticeTitle: {
         color: theme.colors.green,

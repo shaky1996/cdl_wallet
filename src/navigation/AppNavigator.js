@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -12,6 +14,7 @@ import ShareScreen from '../screens/ShareScreen';
 import ArchiveScreen from '../screens/ArchiveScreen';
 import ArchivedDocViewerScreen from '../screens/ArchivedDocViewerScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import OnboardingScreen from '../screens/OnboardingScreen';
 import LockGate from '../components/LockGate';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -21,6 +24,7 @@ import { useLanguage } from '../i18n/LanguageContext';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 const RootStack = createNativeStackNavigator();
+const ONBOARDING_KEY = 'cdl_onboarding_complete';
 
 function HomeStack() {
     return (
@@ -110,30 +114,71 @@ function Tabs() {
 }
 
 export default function AppNavigator() {
+    const [checkingOnboarding, setCheckingOnboarding] = useState(true);
+    const [onboardingComplete, setOnboardingComplete] = useState(false);
+    const [savingOnboarding, setSavingOnboarding] = useState(false);
+
+    useEffect(() => {
+        AsyncStorage.getItem(ONBOARDING_KEY)
+            .then((value) => setOnboardingComplete(value === 'true'))
+            .finally(() => setCheckingOnboarding(false));
+    }, []);
+
+    const handleFinishOnboarding = async () => {
+        setSavingOnboarding(true);
+
+        try {
+            await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
+            setOnboardingComplete(true);
+        } finally {
+            setSavingOnboarding(false);
+        }
+    };
+
     return (
         <SafeAreaProvider>
                     
 
             <NavigationContainer>
-                <LockGate>
-                    <RootStack.Navigator screenOptions={{ headerShown: false }}>
-                        {/* MAIN APP */}
-                        <RootStack.Screen
-                            name='Tabs'
-                            component={Tabs}
-                        />
+                {checkingOnboarding ? (
+                    <View
+                        style={{
+                            flex: 1,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: colors.bgBody
+                        }}
+                    >
+                        <ActivityIndicator color={colors.accent} />
+                    </View>
+                ) : onboardingComplete ? (
+                    <LockGate>
+                        <RootStack.Navigator
+                            screenOptions={{ headerShown: false }}
+                        >
+                            {/* MAIN APP */}
+                            <RootStack.Screen
+                                name='Tabs'
+                                component={Tabs}
+                            />
 
-                        {/* GLOBAL DETAIL SCREEN (FIX) */}
-                        <RootStack.Screen
-                            name='ArchivedDocViewer'
-                            component={ArchivedDocViewerScreen}
-                        />
-                        <RootStack.Screen
-                            name='ArchiveUpload'
-                            component={UploadScreen}
-                        />
-                    </RootStack.Navigator>
-                </LockGate>
+                            {/* GLOBAL DETAIL SCREEN (FIX) */}
+                            <RootStack.Screen
+                                name='ArchivedDocViewer'
+                                component={ArchivedDocViewerScreen}
+                            />
+                            <RootStack.Screen
+                                name='ArchiveUpload'
+                                component={UploadScreen}
+                            />
+                        </RootStack.Navigator>
+                    </LockGate>
+                ) : (
+                    <OnboardingScreen
+                        onFinish={handleFinishOnboarding}
+                        saving={savingOnboarding}
+                    />
+                )}
             </NavigationContainer>
             
         </SafeAreaProvider>
