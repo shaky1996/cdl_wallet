@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
 import * as LocalAuthentication from 'expo-local-authentication';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export const useBiometrics = () => {
+    const { t } = useLanguage();
     const [isLocked, setIsLocked] = useState(true);
     const [isChecking, setIsChecking] = useState(true);
     const [isSupported, setIsSupported] = useState(false);
@@ -21,9 +23,9 @@ export const useBiometrics = () => {
 
         try {
             const result = await LocalAuthentication.authenticateAsync({
-                promptMessage: 'Unlock CDL Wallet',
+                promptMessage: t('biometrics.prompt'),
                 disableDeviceFallback: false,
-                cancelLabel: 'Cancel'
+                cancelLabel: t('biometrics.cancel')
             });
 
             if (result.success) {

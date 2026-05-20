@@ -15,12 +15,13 @@ import { useFocusEffect } from '@react-navigation/native';
 import { colors } from '../constants/colors';
 import { getArchive, deleteArchivedDoc } from '../services/storage';
 import { formatPrettyDate } from '../utils/dateHelpers';
-import { DOC_LABELS } from '../constants/docTypes';
 import { useAsyncError } from '../hooks/useAsyncError';
 import Header from '../components/Header';
 import InfoBanner from '../components/InfoBanner';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function ArchiveScreen({ navigation }) {
+    const { locale, t } = useLanguage();
     const [archive, setArchive] = useState([]);
     const [loadingArchive, setLoadingArchive] = useState(true);
     const { loading, run } = useAsyncError();
@@ -37,7 +38,10 @@ export default function ArchiveScreen({ navigation }) {
             const data = await getArchive();
             setArchive(data);
         } catch (e) {
-            Alert.alert('Error', `Could not load archive: ${e.message}`);
+            Alert.alert(
+                t('common.error'),
+                t('archive.loadError', { message: e.message })
+            );
         } finally {
             setLoadingArchive(false);
         }
@@ -45,12 +49,14 @@ export default function ArchiveScreen({ navigation }) {
 
     const handleDelete = (item) => {
         Alert.alert(
-            'Delete archived document',
-            `Permanently delete this expired ${DOC_LABELS[item.docType]}? This cannot be undone.`,
+            t('archive.deleteTitle'),
+            t('archive.deleteMessage', {
+                docLabel: t(`docs.${item.docType}`)
+            }),
             [
-                { text: 'Cancel', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 {
-                    text: 'Delete',
+                    text: t('common.delete'),
                     style: 'destructive',
                     onPress: () =>
                         run(() => deleteArchivedDoc(item.id), {
@@ -59,7 +65,7 @@ export default function ArchiveScreen({ navigation }) {
                                     prev.filter((d) => d.id !== item.id)
                                 ),
                             errorMessage:
-                                'Could not delete this document. Please try again.'
+                                t('archive.deleteError')
                         })
                 }
             ]
@@ -86,17 +92,22 @@ export default function ArchiveScreen({ navigation }) {
 
                 <View style={styles.cardMeta}>
                     <Text style={styles.cardName}>
-                        Old {DOC_LABELS[item.docType]}
+                        {t('docs.oldDocument', {
+                            docLabel: t(`docs.${item.docType}`)
+                        })}
                     </Text>
 
                     <Text style={styles.cardDates}>
-                        Expiration date: {formatPrettyDate(item.expiryDate)}
+                        {t('archive.expirationDate', {
+                            date: formatPrettyDate(item.expiryDate, locale)
+                        })}
                     </Text>
 
                     {item.archivedAt ? (
                         <Text style={styles.cardDates}>
-                            Added to archive:{' '}
-                            {formatPrettyDate(item.archivedAt)}
+                            {t('archive.addedToArchive', {
+                                date: formatPrettyDate(item.archivedAt, locale)
+                            })}
                         </Text>
                     ) : null}
                 </View>
@@ -111,7 +122,7 @@ export default function ArchiveScreen({ navigation }) {
                         handleView(item);
                     }}
                 >
-                    <Text style={styles.viewText}>View</Text>
+                    <Text style={styles.viewText}>{t('archive.view')}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -122,7 +133,7 @@ export default function ArchiveScreen({ navigation }) {
                     }}
                     disabled={loading}
                 >
-                    <Text style={styles.deleteText}>Delete</Text>
+                    <Text style={styles.deleteText}>{t('common.delete')}</Text>
                 </TouchableOpacity>
             </View>
         </TouchableOpacity>
@@ -141,15 +152,15 @@ export default function ArchiveScreen({ navigation }) {
 
     return (
         <SafeAreaView style={styles.safe}>
-            <Header subtitle='Archive' />
+            <Header subtitle={t('header.archive')} />
 
             <View style={styles.body}>
-                <Text style={styles.label}>Archived documents</Text>
+                <Text style={styles.label}>{t('archive.archivedDocuments')}</Text>
 
 
                 <InfoBanner
                     text={
-                        'Employers sometimes ask for proof of a prior valid document. Keeping archived docs saves you a trip to the DMV.'
+                        t('archive.info')
                     }
                     color={colors.blue}
                     backgroundColor={'#1a1f2e'}
@@ -158,7 +169,7 @@ export default function ArchiveScreen({ navigation }) {
                 {archive.length === 0 ? (
                     <View style={styles.emptyState}>
                         <Text style={styles.emptyText}>
-                            No archived documents
+                            {t('archive.empty')}
                         </Text>
                     </View>
                 ) : (

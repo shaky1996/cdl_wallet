@@ -1,15 +1,17 @@
 import { useState, useCallback } from 'react';
 import { Alert } from 'react-native';
+import { useLanguage } from '../i18n/LanguageContext';
 
 // Wraps async operations with consistent error handling + user feedback
 export const useAsyncError = () => {
+    const { t } = useLanguage();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     const run = useCallback(async (asyncFn, options = {}) => {
         const {
             onSuccess,
-            errorMessage = 'Something went wrong. Please try again.',
+            errorMessage = t('common.genericError'),
             showAlert = true
         } = options;
 
@@ -23,12 +25,12 @@ export const useAsyncError = () => {
         } catch (e) {
             console.error(e);
             setError(e.message);
-            if (showAlert) Alert.alert('Error', e.message || errorMessage);
+            if (showAlert) Alert.alert(t('common.error'), e.message || errorMessage);
             return null;
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [t]);
 
     return { loading, error, run };
 };

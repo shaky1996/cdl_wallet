@@ -13,7 +13,6 @@ import * as MailComposer from 'expo-mail-composer';
 import { colors } from '../constants/colors';
 import { getDocs } from '../services/storage';
 import { imageToPdf } from '../services/pdfExport';
-import { DOC_LABELS } from '../constants/docTypes';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system/legacy';
 import Header from '../components/Header';
@@ -22,8 +21,10 @@ import { theme } from '../styles/theme';
 import InfoBanner from '../components/InfoBanner';
 import { useRoute } from '@react-navigation/native';
 import { useEffect } from 'react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function ShareScreen() {
+    const { locale, t } = useLanguage();
     const [docs, setDocs] = useState({});
     const [selected, setSelected] = useState({
         cdl: false,
@@ -70,11 +71,14 @@ export default function ShareScreen() {
         const trimmedEmail = email.trim();
 
         if (!trimmedEmail) {
-            return Alert.alert('Enter employer email');
+            return Alert.alert(t('shareScreen.enterEmail'));
         }
     
         if (!isValidEmail(trimmedEmail)) {
-            return Alert.alert('Invalid email', 'Please enter a valid email address.');
+            return Alert.alert(
+                t('shareScreen.invalidEmailTitle'),
+                t('shareScreen.invalidEmailMessage')
+            );
         };
 
     const chosenTypes = Object.keys(selected).filter(
@@ -82,7 +86,7 @@ export default function ShareScreen() {
     );
 
     if (!chosenTypes.length) {
-        return Alert.alert('Select at least one document');
+        return Alert.alert(t('shareScreen.selectOne'));
     }
 
     setSending(true);
@@ -98,7 +102,10 @@ export default function ShareScreen() {
         });
 
         // 2. Generate PDF (returns file:// from expo-print)
-        const pdfUri = await imageToPdf(selectedDocs, DOC_LABELS);
+        const pdfUri = await imageToPdf(selectedDocs, {
+            cdl: t('docs.cdl'),
+            med_card: t('docs.med_card')
+        });
 
         // 3. Move to safe cache location (IMPORTANT for MailComposer)
         const safeUri = FileSystem.cacheDirectory + `driver_docs_${Date.now()}.pdf`;
@@ -111,8 +118,8 @@ export default function ShareScreen() {
         // 4. Send email with valid file path
         const result = await MailComposer.composeAsync({
             recipients: [email.trim()],
-            subject: 'CDL Wallet - Driver Documents',
-            body: 'Hello,\n\nPlease find my documents attached.\n\n\nShared via CDL Wallet App',
+            subject: t('shareScreen.emailSubject'),
+            body: t('shareScreen.emailBody'),
             attachments: [safeUri]
         });
 
@@ -120,7 +127,7 @@ export default function ShareScreen() {
 
     } catch (e) {
         console.log('EMAIL ERROR:', e);
-        Alert.alert('Error', 'Could not open mail composer.');
+        Alert.alert(t('common.error'), t('shareScreen.mailError'));
     } finally {
         setSending(false);
     }
@@ -133,7 +140,7 @@ export default function ShareScreen() {
     );
 
     if (!chosenTypes.length)
-        return Alert.alert('Select at least one document');
+        return Alert.alert(t('shareScreen.selectOne'));
 
     try {
         // build a docs object only with selected ones
@@ -142,19 +149,22 @@ export default function ShareScreen() {
             selectedDocs[t] = docs[t];
         });
 
-        const pdfUri = await imageToPdf(selectedDocs, DOC_LABELS);
+        const pdfUri = await imageToPdf(selectedDocs, {
+            cdl: t('docs.cdl'),
+            med_card: t('docs.med_card')
+        });
 
         await Sharing.shareAsync(pdfUri);
     } catch (e) {
-        Alert.alert('Error', 'Could not open share menu.');
+        Alert.alert(t('common.error'), t('shareScreen.shareError'));
     }
 };
 
     return (
         <SafeAreaView style={styles.safe}>
-            <Header subtitle='Share documents' />
+            <Header subtitle={t('header.share')} />
             <View style={styles.body}>
-                <Text style={styles.label}>Select documents</Text>
+                <Text style={styles.label}>{t('shareScreen.selectDocuments')}</Text>
                 {['cdl', 'med_card'].map((type) => {
                     const isAvailable = !!docs[type];
 
@@ -181,12 +191,17 @@ export default function ShareScreen() {
                             </View>
                             <View style={{ flex: 1 }}>
                                 <Text style={styles.docName}>
-                                    {DOC_LABELS[type]}
+                                    {t(`docs.${type}`)}
                                 </Text>
                                 <Text style={styles.docSub}>
                                     {docs[type]
-                                        ? `Expires ${formatPrettyDate(docs[type].expiryDate)}`
-                                        : 'Not uploaded'}
+                                        ? t('shareScreen.expiresOn', {
+                                              date: formatPrettyDate(
+                                                  docs[type].expiryDate,
+                                                  locale
+                                              )
+                                          })
+                                        : t('docs.notUploaded')}
                                 </Text>
                             </View>
                             <Text style={styles.pdfBadge}>PDF</Text>
@@ -195,7 +210,7 @@ export default function ShareScreen() {
                 })}
 
                 <Text style={[styles.label, { marginTop: 16 }]}>
-                    Employer email
+                    {t('shareScreen.employerEmail')}
                 </Text>
                 <TextInput
                     style={styles.input}
@@ -210,7 +225,7 @@ export default function ShareScreen() {
 
                 <InfoBanner
                     text={
-                        'Images are converted to PDF before sending. Email is sent from your own email app.'
+                        t('shareScreen.info')
                     }
                     color={colors.blue}
                     backgroundColor={'#1a1f2e'}
@@ -223,7 +238,9 @@ export default function ShareScreen() {
                     disabled={sending}
                 >
                     <Text style={styles.sendBtnText}>
-                        {sending ? 'Preparing...' : 'Email documents ›'}
+                        {sending
+                            ? t('shareScreen.preparing')
+                            : t('shareScreen.emailDocuments')}
                     </Text>
                 </TouchableOpacity>
 
@@ -232,7 +249,9 @@ export default function ShareScreen() {
                     style={[styles.sendBtn]}
                     onPress={handleShare}
                 >
-                    <Text style={styles.sendBtnText}>Share documents ›</Text>
+                    <Text style={styles.sendBtnText}>
+                        {t('shareScreen.shareDocuments')}
+                    </Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>

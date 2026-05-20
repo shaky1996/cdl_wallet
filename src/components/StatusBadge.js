@@ -2,9 +2,12 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { theme } from '../styles/theme';
 import { STATUS_CONFIG } from '../constants/statusConfig';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function StatusBadge({ status, style }) {
-    const cfg = STATUS_CONFIG[status] || CONFIG.expired;
+    const { t } = useLanguage();
+    const resolvedStatus = STATUS_CONFIG[status] ? status : 'expired';
+    const cfg = STATUS_CONFIG[resolvedStatus];
 
     return (
         <View
@@ -17,7 +20,9 @@ export default function StatusBadge({ status, style }) {
                 style
             ]}
         >
-            <Text style={[styles.text, { color: cfg.text }]}>{cfg.label}</Text>
+            <Text style={[styles.text, { color: cfg.text }]}>
+                {t(`status.${resolvedStatus}`)}
+            </Text>
         </View>
     );
 }

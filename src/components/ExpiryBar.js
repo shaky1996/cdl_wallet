@@ -2,8 +2,10 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { theme } from '../styles/theme';
 import { validityPercent, daysUntil, getStatus } from '../utils/dateHelpers';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function ExpiryBar({ uploadedAt, expiryDate }) {
+    const { t } = useLanguage();
     const status = getStatus(expiryDate);
     const days = daysUntil(expiryDate);
     const MAX_DAYS = 30; // one month
@@ -32,7 +34,9 @@ export default function ExpiryBar({ uploadedAt, expiryDate }) {
                 />
             </View>
             <Text style={[styles.daysText, { color: barColor }]}>
-                {days > 0 ? `${days} days remaining` : 'Expired'}
+                {days > 0
+                    ? t('common.daysRemaining', { count: days })
+                    : t('common.expired')}
             </Text>
         </View>
     );

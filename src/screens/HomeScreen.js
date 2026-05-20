@@ -10,12 +10,15 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { colors } from '../constants/colors';
 import { getDocs } from '../services/storage';
+import { deleteDoc } from '../services/fileSystem';
 import DocCard from '../components/DocCard';
 import Header from '../components/Header';
+import { useLanguage } from '../i18n/LanguageContext';
 
 
 export default function HomeScreen({ navigation }) {
     const [docs, setDocs] = React.useState({});
+    const { t } = useLanguage();
 
     useFocusEffect(
         useCallback(() => {
@@ -32,13 +35,13 @@ export default function HomeScreen({ navigation }) {
 
     return (
         <SafeAreaView style={styles.safe}>
-            <Header subtitle='Stay road ready' />
+            <Header subtitle={t('header.home')} />
 
             <ScrollView
                 style={styles.body}
                 contentContainerStyle={{ gap: 12 }}
             >
-                <Text style={styles.sectionLabel}>Your documents</Text>
+                <Text style={styles.sectionLabel}>{t('home.sectionLabel')}</Text>
 
                 <DocCard
                     docType='cdl'
@@ -73,7 +76,7 @@ export default function HomeScreen({ navigation }) {
                     onPress={() => navigation.navigate('Share')}
                 >
                     <Text style={styles.shareBtnText}>
-                        Share your documents ›
+                        {t('home.shareButton')}
                     </Text>
                 </TouchableOpacity>
             </ScrollView>

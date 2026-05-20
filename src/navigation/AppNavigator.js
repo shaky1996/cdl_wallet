@@ -14,6 +14,7 @@ import ArchivedDocViewerScreen from '../screens/ArchivedDocViewerScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import LockGate from '../components/LockGate';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useLanguage } from '../i18n/LanguageContext';
 
 
 
@@ -47,6 +48,8 @@ function HomeStack() {
 }
 
 function Tabs() {
+    const { t } = useLanguage();
+
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
@@ -85,18 +88,22 @@ function Tabs() {
             <Tab.Screen
                 name='Wallet'
                 component={HomeStack}
+                options={{ tabBarLabel: t('tabs.wallet') }}
             />
             <Tab.Screen
                 name='Share'
                 component={ShareScreen}
+                options={{ tabBarLabel: t('tabs.share') }}
             />
             <Tab.Screen
                 name='Archive'
                 component={ArchiveScreen}
+                options={{ tabBarLabel: t('tabs.archive') }}
             />
             <Tab.Screen
                 name='Settings'
                 component={SettingsScreen}
+                options={{ tabBarLabel: t('tabs.settings') }}
             />
         </Tab.Navigator>
     );

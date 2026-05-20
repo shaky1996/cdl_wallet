@@ -15,7 +15,7 @@ export const parseLocalDate = (dateStr) => {
 };
 
 // 🔥 NEW: Pretty display format (April 20, 2026)
-export const formatPrettyDate = (dateStr) => {
+export const formatPrettyDate = (dateStr, locale = 'en-US') => {
     if (!dateStr) return '';
 
     let date;
@@ -34,9 +34,9 @@ export const formatPrettyDate = (dateStr) => {
         date = new Date(dateStr);
     }
 
-    if (isNaN(date.getTime())) return 'Invalid date';
+    if (isNaN(date.getTime())) return '';
 
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(locale, {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
@@ -44,10 +44,10 @@ export const formatPrettyDate = (dateStr) => {
 };
 
 // Optional: keep old format if needed anywhere
-export const formatShortDate = (dateStr) => {
+export const formatShortDate = (dateStr, locale = 'en-US') => {
     const d = parseLocalDate(dateStr);
 
-    return d.toLocaleDateString('en-US', {
+    return d.toLocaleDateString(locale, {
         month: 'short',
         day: 'numeric',
         year: 'numeric'

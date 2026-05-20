@@ -1,8 +1,9 @@
 import * as Notifications from 'expo-notifications';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 
 import { parseLocalDate } from '../utils/dateHelpers';
+import { LANGUAGE_KEY, translations } from '../i18n/translations';
 
 /* ---------------------------
    HANDLER
@@ -36,6 +37,47 @@ export const requestPermissions = async () => {
 //     }
 // };
 
+const getDeviceLanguage = () => {
+    const settings = NativeModules.SettingsManager?.settings;
+    const iosLanguage =
+        settings?.AppleLocale ||
+        settings?.AppleLanguages?.[0] ||
+        settings?.NSLanguages?.[0];
+    const androidLanguage = NativeModules.I18nManager?.localeIdentifier;
+    const deviceLanguage =
+        Platform.OS === 'ios' ? iosLanguage : androidLanguage;
+
+    return String(deviceLanguage || 'en').toLowerCase().startsWith('ru')
+        ? 'ru'
+        : 'en';
+};
+
+const getNotificationLanguage = async () => {
+    const preference = await AsyncStorage.getItem(LANGUAGE_KEY);
+
+    if (preference === 'en' || preference === 'ru') {
+        return preference;
+    }
+
+    return getDeviceLanguage();
+};
+
+const translate = (language, key, params = {}) => {
+    const value =
+        key
+            .split('.')
+            .reduce((current, part) => current?.[part], translations[language]) ||
+        key
+            .split('.')
+            .reduce((current, part) => current?.[part], translations.en) ||
+        key;
+
+    return Object.keys(params).reduce(
+        (text, param) => text.replaceAll(`{${param}}`, String(params[param])),
+        value
+    );
+};
+
 /* ---------------------------
    SCHEDULE REMINDERS
 ---------------------------- */
@@ -45,7 +87,8 @@ export const scheduleExpiryReminders = async (docType, expiryDateStr) => {
 
     await cancelDocReminders(docType);
 
-    const label = docType === 'cdl' ? 'CDL' : 'Med Card';
+    const language = await getNotificationLanguage();
+    const label = translate(language, `docs.${docType}`);
     const expiry = parseLocalDate(expiryDateStr);
 
     if (!expiry) return;
@@ -57,19 +100,25 @@ export const scheduleExpiryReminders = async (docType, expiryDateStr) => {
             key: '30',
             daysBefore: 30,
             title: `CDL Wallet`,
-            body: `Your ${label} expires in 30 days. Time to renew.`
+            body: translate(language, 'notifications.expiresIn30', {
+                docLabel: label
+            })
         },
         {
             key: '10',
             daysBefore: 10,
             title: `CDL Wallet`,
-            body: `Your ${label} expires in 10 days. Don't get pulled off the road.`
+            body: translate(language, 'notifications.expiresIn10', {
+                docLabel: label
+            })
         },
         {
             key: '1',
             daysBefore: 1,
             title: `CDL Wallet`,
-            body: `Your ${label} expires tomorrow. Immediate action required.`
+            body: translate(language, 'notifications.expiresTomorrow', {
+                docLabel: label
+            })
         }
     ];
 

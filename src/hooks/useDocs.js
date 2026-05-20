@@ -13,12 +13,14 @@ import {
     scheduleExpiryReminders,
     cancelDocReminders
 } from '../services/notifications';
+import { useLanguage } from '../i18n/LanguageContext';
 
 // Central hook that manages all document state across the app.
 // Any screen that needs to read or mutate docs should use this
 // instead of calling storage services directly.
 
 export const useDocs = ({ autoLoad = true } = {}) => {
+    const { t } = useLanguage();
     const [docs, setDocs] = useState({});
     const [archive, setArchive] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -30,7 +32,7 @@ export const useDocs = ({ autoLoad = true } = {}) => {
             if (autoLoad) {
                 loadAll();
             }
-        }, [autoLoad])
+        }, [autoLoad, t])
     );
 
     const loadAll = async () => {
@@ -44,9 +46,9 @@ export const useDocs = ({ autoLoad = true } = {}) => {
             setDocs(docsData);
             setArchive(archiveData);
         } catch (e) {
-            const msg = `Could not load documents: ${e.message}`;
+            const msg = t('docErrors.load', { message: e.message });
             setError(msg);
-            Alert.alert('Error', msg);
+            Alert.alert(t('common.error'), msg);
         } finally {
             setLoading(false);
         }
@@ -76,9 +78,9 @@ export const useDocs = ({ autoLoad = true } = {}) => {
 
             return true;
         } catch (e) {
-            const msg = `Could not save document: ${e.message}`;
+            const msg = t('docErrors.save', { message: e.message });
             setError(msg);
-            Alert.alert('Error', msg);
+            Alert.alert(t('common.error'), msg);
             return false;
         } finally {
             setLoading(false);
@@ -95,9 +97,9 @@ export const useDocs = ({ autoLoad = true } = {}) => {
             await loadAll();
             return true;
         } catch (e) {
-            const msg = `Could not delete document: ${e.message}`;
+            const msg = t('docErrors.delete', { message: e.message });
             setError(msg);
-            Alert.alert('Error', msg);
+            Alert.alert(t('common.error'), msg);
             return false;
         } finally {
             setLoading(false);
@@ -114,9 +116,9 @@ export const useDocs = ({ autoLoad = true } = {}) => {
             setArchive((prev) => prev.filter((d) => d.id !== id));
             return true;
         } catch (e) {
-            const msg = `Could not delete archived document: ${e.message}`;
+            const msg = t('docErrors.deleteArchived', { message: e.message });
             setError(msg);
-            Alert.alert('Error', msg);
+            Alert.alert(t('common.error'), msg);
             // Reload to restore accurate state if optimistic update was wrong
             await loadAll();
             return false;

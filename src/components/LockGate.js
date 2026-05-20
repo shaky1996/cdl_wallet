@@ -9,9 +9,11 @@ import {
 
 import { useBiometrics } from '../hooks/useBiometrics';
 import { colors } from '../constants/colors';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function LockGate({ children }) {
     const { isLocked, isChecking, authenticate } = useBiometrics();
+    const { t } = useLanguage();
 
     if (isChecking) {
         return (
@@ -52,7 +54,7 @@ export default function LockGate({ children }) {
                             marginBottom: 20
                         }}
                     >
-                        Unlock CDL Wallet
+                        {t('lock.unlock')}
                     </Text>
 
                     <TouchableOpacity
@@ -69,7 +71,7 @@ export default function LockGate({ children }) {
                                 fontWeight: '700'
                             }}
                         >
-                            Use Face ID
+                            {t('lock.useFaceId')}
                         </Text>
                     </TouchableOpacity>
                 </View>

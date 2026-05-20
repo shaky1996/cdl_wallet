@@ -26,23 +26,24 @@ import { saveDoc, getDocs, archiveDoc } from '../services/storage';
 
 import { scheduleExpiryReminders } from '../services/notifications';
 import { useAsyncError } from '../hooks/useAsyncError';
-import { DOC_LABELS } from '../constants/docTypes';
 import BackButtonBar from '../components/BackButtonBar';
 import { formatMMDDYYYY } from '../utils/dateHelpers';
+import { useLanguage } from '../i18n/LanguageContext';
 
 
 export default function UploadScreen({ navigation, route }) {
     const { docType } = route.params;
-    const docLabel = DOC_LABELS[docType];
+    const { locale, t } = useLanguage();
+    const docLabel = t(`docs.${docType}`);
 
     const [imageUri, setImageUri] = useState(null);
     const [expiryDate, setExpiryDate] = useState('');
     const [ocrDetected, setOcrDetected] = useState(false);
     const [showPicker, setShowPicker] = useState(false);
     const [tempDate, setTempDate] = useState(new Date());
-    const isDisabled = loading || !imageUri;
 
     const { loading, run } = useAsyncError();
+    const isDisabled = loading || !imageUri;
 
     const formatLocalDate = (date) => {
     const year = date.getFullYear();
@@ -66,7 +67,7 @@ const handleCamera = async () => {
         }
     } catch (e) {
         console.log('Scanner error:', e);
-        Alert.alert('Camera Error', 'Could not scan document.');
+        Alert.alert(t('upload.cameraErrorTitle'), t('upload.cameraErrorMessage'));
     }
 };
 
@@ -116,10 +117,10 @@ const handleGallery = async () => {
     
 
     const validateExpiryDate = (dateStr) => {
-        if (!dateStr.trim()) return 'Please enter the expiry date.';
+        if (!dateStr.trim()) return t('upload.expiryRequired');
         const parsed = new Date(dateStr);
         if (isNaN(parsed.getTime()))
-            return 'Invalid date format. Use MM-DD-YYYY.';
+            return t('upload.invalidDate');
         return null;
     };
 
@@ -133,7 +134,7 @@ const handleGallery = async () => {
     const handleSave = () => {
         const validationError = validateExpiryDate(formatLocalDate(tempDate));
         if (validationError) {
-            Alert.alert('Check expiry date', validationError);
+            Alert.alert(t('upload.checkExpiryDate'), validationError);
             return;
         }
 
@@ -174,11 +175,11 @@ const handleGallery = async () => {
             },
             {
                 onSuccess: () => {
-                    Alert.alert('Saved', `Your ${docLabel} has been saved.`, [
-                        { text: 'OK', onPress: () => navigation.goBack() }
+                    Alert.alert(t('upload.savedTitle'), t('upload.savedMessage', { docLabel }), [
+                        { text: t('common.ok'), onPress: () => navigation.goBack() }
                     ]);
                 },
-                errorMessage: `Could not save your ${docLabel}. Please try again.`
+                errorMessage: t('upload.saveError', { docLabel })
             }
         );
     };
@@ -186,7 +187,7 @@ const handleGallery = async () => {
     return (
         <SafeAreaView style={common.safeArea}>
             <BackButtonBar
-                title={`Upload ${docLabel}`}
+                title={t('upload.title', { docLabel })}
                 onBack={() => navigation.goBack()}
             />
 
@@ -195,7 +196,7 @@ const handleGallery = async () => {
                 contentContainerStyle={styles.scrollContent}
                 keyboardShouldPersistTaps='handled'
             >
-                <Text style={styles.label}>Document image</Text>
+                <Text style={styles.label}>{t('upload.documentImage')}</Text>
 
                 {imageUri ? (
                     <Image
@@ -206,7 +207,7 @@ const handleGallery = async () => {
                 ) : (
                     <View style={styles.placeholder}>
                         <Text style={styles.placeholderText}>
-                            No document selected
+                            {t('upload.noDocumentSelected')}
                         </Text>
                     </View>
                 )}
@@ -216,13 +217,13 @@ const handleGallery = async () => {
                         style={styles.sourceBtn}
                         onPress={handleCamera}
                     >
-                        <Text style={styles.sourceBtnText}>Camera</Text>
+                        <Text style={styles.sourceBtnText}>{t('upload.camera')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.sourceBtn}
                         onPress={handleGallery}
                     >
-                        <Text style={styles.sourceBtnText}>Gallery</Text>
+                        <Text style={styles.sourceBtnText}>{t('upload.gallery')}</Text>
                     </TouchableOpacity>
 
                     {/* Option to upload PDF files (Not Needed Right Now) */}
@@ -230,12 +231,12 @@ const handleGallery = async () => {
                         style={styles.sourceBtn}
                         onPress={handleFilePicker}
                     >
-                        <Text style={styles.sourceBtnText}>PDF file</Text>
+                        <Text style={styles.sourceBtnText}>{t('upload.pdfFile')}</Text>
                     </TouchableOpacity> */}
                 </View>
 
                 <Text style={[styles.label, { marginTop: 20 }]}>
-                    Expiry date
+                    {t('upload.expiryDate')}
                 </Text>
 
                 <TouchableOpacity
@@ -243,7 +244,7 @@ const handleGallery = async () => {
                     onPress={() => setShowPicker(true)}
                 >
                     <View style={styles.dateInputWrap}>
-                        <Text style={styles.dateInputLabel}>MM-DD-YYYY</Text>
+                        <Text style={styles.dateInputLabel}>{t('upload.dateFormat')}</Text>
 
                         <TouchableOpacity
                             style={styles.dateInput}
@@ -258,7 +259,7 @@ const handleGallery = async () => {
                             >
                                 {expiryDate
                                     ? formatMMDDYYYY(expiryDate)
-                                    : 'e.g. 04-25-2026'}
+                                    : t('upload.dateExample')}
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -268,7 +269,7 @@ const handleGallery = async () => {
                             {/* HEADER ROW */}
                             <View style={styles.pickerHeader}>
                                 <Text style={styles.pickerTitle}>
-                                    Select date
+                                    {t('upload.selectDate')}
                                 </Text>
 
                                 <TouchableOpacity
@@ -281,7 +282,7 @@ const handleGallery = async () => {
                                     }}
                                 >
                                     <Text style={styles.doneTopRight}>
-                                        Done
+                                        {t('upload.done')}
                                     </Text>
                                 </TouchableOpacity>
                             </View>
@@ -292,6 +293,7 @@ const handleGallery = async () => {
                                     value={tempDate}
                                     mode='date'
                                     display='spinner'
+                                    locale={locale}
                                     
                                     onChange={(e, date) => {
                                         if (date) setTempDate(date);
@@ -306,7 +308,7 @@ const handleGallery = async () => {
                 {expiryDate && !isNaN(new Date(expiryDate).getTime()) && (
                     <View style={styles.reminderPreview}>
                         <Text style={styles.reminderText}>
-                            Reminders will be set 30 and 10 days before expiry.
+                            {t('upload.remindersPreview')}
                         </Text>
                     </View>
                 )}
@@ -322,7 +324,7 @@ const handleGallery = async () => {
                     {loading ? (
                         <ActivityIndicator color='#1a1200' />
                     ) : (
-                        <Text style={styles.saveBtnText}>Save document</Text>
+                        <Text style={styles.saveBtnText}>{t('upload.saveDocument')}</Text>
                     )}
                 </TouchableOpacity>
             </ScrollView>

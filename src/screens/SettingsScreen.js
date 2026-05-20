@@ -6,7 +6,6 @@ import {
     StyleSheet,
     SafeAreaView,
     ScrollView,
-    Switch,
     Alert,
     Linking
 } from 'react-native';
@@ -15,8 +14,8 @@ import { theme } from '../styles/theme';
 import { common } from '../styles/common';
 // import { exportAllData } from '../services/exportData';
 // import { sweepOrphanFiles } from '../services/storage';
-import { useAsyncError } from '../hooks/useAsyncError';
 import Header from '../components/Header';
+import { useLanguage } from '../i18n/LanguageContext';
 
 
 
@@ -25,7 +24,8 @@ const BIOMETRICS_PREF_KEY = 'cdl_biometrics_enabled';
 export default function SettingsScreen() {
 
     // const [orphanCount, setOrphanCount] = useState(null);
-    const { loading, run } = useAsyncError();
+    const [biometricsEnabled, setBiometricsEnabled] = useState(true);
+    const { languagePreference, setLanguage, t } = useLanguage();
 
     useEffect(() => {
         loadPrefs();
@@ -45,7 +45,7 @@ export default function SettingsScreen() {
         try {
             await AsyncStorage.setItem(BIOMETRICS_PREF_KEY, String(value));
         } catch (e) {
-            Alert.alert('Error', 'Could not save preference.');
+            Alert.alert(t('common.error'), t('settings.savePreferenceError'));
         }
     };
 
@@ -72,24 +72,25 @@ export default function SettingsScreen() {
 
     const handleDeleteAllData = () => {
         Alert.alert(
-            'Delete all data',
-            'This will permanently delete all your documents, archive, and settings. This cannot be undone.',
+            t('settings.deleteAllData'),
+            t('settings.deleteAllDataMessage'),
             [
-                { text: 'Cancel', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 {
-                    text: 'Delete everything',
+                    text: t('settings.deleteEverything'),
                     style: 'destructive',
                     onPress: async () => {
                         try {
                             await AsyncStorage.clear();
+                            await setLanguage('system');
                             Alert.alert(
-                                'Data deleted',
-                                'All your data has been removed from this device.'
+                                t('settings.dataDeletedTitle'),
+                                t('settings.dataDeletedMessage')
                             );
                         } catch (e) {
                             Alert.alert(
-                                'Error',
-                                'Could not delete data. Please try again.'
+                                t('common.error'),
+                                t('settings.deleteError')
                             );
                         }
                     }
@@ -100,14 +101,64 @@ export default function SettingsScreen() {
 
     return (
         <SafeAreaView style={common.safeArea}>
-            <Header subtitle='Settings' />
+            <Header subtitle={t('header.settings')} />
 
             <ScrollView
                 style={styles.body}
                 contentContainerStyle={styles.scrollContent}
             >
                 {/* Security section */}
-                <Text style={styles.sectionLabel}>Back Up</Text>
+                <Text style={styles.sectionLabel}>{t('settings.language')}</Text>
+                <View style={styles.settingsGroup}>
+                    <View style={styles.settingRowColumn}>
+                        <View style={styles.settingInfo}>
+                            <Text style={styles.settingName}>
+                                {t('settings.appLanguage')}
+                            </Text>
+                            <Text style={styles.settingSub}>
+                                {t('settings.appLanguageSub')}
+                            </Text>
+                        </View>
+
+                        <View style={styles.languageOptions}>
+                            {['system', 'en', 'ru'].map((code) => {
+                                const isSelected = languagePreference === code;
+                                const label =
+                                    code === 'system'
+                                        ? t('settings.systemDefault')
+                                        : code === 'en'
+                                          ? 'English'
+                                          : 'Русский';
+
+                                return (
+                                    <TouchableOpacity
+                                        key={code}
+                                        style={[
+                                            styles.languageOption,
+                                            isSelected &&
+                                                styles.languageOptionSelected
+                                        ]}
+                                        onPress={() => setLanguage(code)}
+                                    >
+                                        <Text
+                                            style={[
+                                                styles.languageOptionText,
+                                                isSelected &&
+                                                    styles.languageOptionTextSelected
+                                            ]}
+                                        >
+                                            {label}
+                                        </Text>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
+                    </View>
+                </View>
+
+                <Text style={[styles.sectionLabel, { marginTop: 24 }]}>
+                    {t('settings.backup')}
+                </Text>
                 {/*<View style={styles.settingsGroup}>
                     <View style={styles.settingRow}>
                         <View style={styles.settingInfo}>
@@ -182,33 +233,41 @@ export default function SettingsScreen() {
 
                 {/* Backup notice */}
                 <View style={styles.noticeBanner}>
-                    <Text style={styles.noticeTitle}>Keep your backup on</Text>
+                    <Text style={styles.noticeTitle}>
+                        {t('settings.keepBackupOn')}
+                    </Text>
                     <Text style={styles.noticeText}>
-                        Your documents are stored on this device only. Make sure
-                        iCloud backup is enabled so your data transfers to a new
-                        phone automatically.
+                        {t('settings.backupText')}
                     </Text>
                 </View>
 
                 {/* About section */}
                 <Text style={[styles.sectionLabel, { marginTop: 24 }]}>
-                    About
+                    {t('settings.about')}
                 </Text>
                 <View style={styles.settingsGroup}>
                     <View style={styles.settingRow}>
-                        <Text style={styles.settingName}>Version</Text>
+                        <Text style={styles.settingName}>
+                            {t('settings.version')}
+                        </Text>
                         <Text style={styles.settingVal}>1.0.0</Text>
                     </View>
                     <View style={styles.rowDivider} />
                     <View style={styles.settingRow}>
-                        <Text style={styles.settingName}>Storage</Text>
-                        <Text style={styles.settingVal}>On-device only</Text>
+                        <Text style={styles.settingName}>
+                            {t('settings.storage')}
+                        </Text>
+                        <Text style={styles.settingVal}>
+                            {t('settings.onDeviceOnly')}
+                        </Text>
                     </View>
                     <View style={styles.rowDivider} />
                     <View style={styles.settingRow}>
-                        <Text style={styles.settingName}>Security</Text>
+                        <Text style={styles.settingName}>
+                            {t('settings.security')}
+                        </Text>
                         <Text style={styles.settingVal}>
-                            Protected by iPhone security
+                            {t('settings.protectedByIphone')}
                         </Text>
                     </View>
                     <View style={styles.rowDivider} />
@@ -220,8 +279,10 @@ export default function SettingsScreen() {
                             )
                         }
                     >
-                        <Text style={styles.settingName}>Privacy Policy</Text>
-                        <Text style={styles.settingVal}>Read ›</Text>
+                        <Text style={styles.settingName}>
+                            {t('settings.privacyPolicy')}
+                        </Text>
+                        <Text style={styles.settingVal}>{t('common.read')}</Text>
                     </TouchableOpacity>
                     <View style={styles.rowDivider} />
                     <TouchableOpacity
@@ -232,20 +293,24 @@ export default function SettingsScreen() {
                             )
                         }
                     >
-                        <Text style={styles.settingName}>Terms of Use</Text>
-                        <Text style={styles.settingVal}>Read ›</Text>
+                        <Text style={styles.settingName}>
+                            {t('settings.termsOfUse')}
+                        </Text>
+                        <Text style={styles.settingVal}>{t('common.read')}</Text>
                     </TouchableOpacity>
                 </View>
 
                 {/* Danger zone */}
                 <Text style={[styles.sectionLabel, { marginTop: 24 }]}>
-                    Danger zone
+                    {t('settings.dangerZone')}
                 </Text>
                 <TouchableOpacity
                     style={styles.deleteBtn}
                     onPress={handleDeleteAllData}
                 >
-                    <Text style={styles.deleteBtnText}>Delete all data</Text>
+                    <Text style={styles.deleteBtnText}>
+                        {t('settings.deleteAllData')}
+                    </Text>
                 </TouchableOpacity>
 
                 <Text style={styles.footer}>CDL Wallet v1.0.0</Text>
@@ -294,6 +359,10 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         padding: theme.spacing.md
     },
+    settingRowColumn: {
+        padding: theme.spacing.md,
+        gap: theme.spacing.md
+    },
     settingInfo: {
         flex: 1,
         marginRight: theme.spacing.md
@@ -312,6 +381,32 @@ const styles = StyleSheet.create({
     settingVal: {
         color: theme.colors.textMuted,
         fontSize: theme.font.md
+    },
+    languageOptions: {
+        flexDirection: 'row',
+        gap: theme.spacing.sm
+    },
+    languageOption: {
+        flex: 1,
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        borderRadius: theme.radius.md,
+        paddingVertical: theme.spacing.sm,
+        paddingHorizontal: 6
+    },
+    languageOptionSelected: {
+        backgroundColor: theme.colors.accent,
+        borderColor: theme.colors.accent
+    },
+    languageOptionText: {
+        color: theme.colors.textMuted,
+        fontSize: 12,
+        fontWeight: '600',
+        textAlign: 'center'
+    },
+    languageOptionTextSelected: {
+        color: '#1a1200'
     },
     arrow: {
         color: theme.colors.textMuted,

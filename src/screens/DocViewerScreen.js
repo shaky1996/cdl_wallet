@@ -24,19 +24,20 @@ import {
     daysUntil,
     formatPrettyDate,
 } from '../utils/dateHelpers';
-import { DOC_LABELS } from '../constants/docTypes';
 import StatusBadge from '../components/StatusBadge';
 import ExpiryBar from '../components/ExpiryBar';
 import { useAsyncError } from '../hooks/useAsyncError';
 import { colors } from '../constants/colors';
 import BackButtonBar from '../components/BackButtonBar';
 import InfoBanner from '../components/InfoBanner';
+import { useLanguage } from '../i18n/LanguageContext';
 
 
 
 export default function DocViewerScreen({ navigation, route }) {
     const { docType } = route.params;
-    const docLabel = DOC_LABELS[docType];
+    const { locale, t } = useLanguage();
+    const docLabel = t(`docs.${docType}`);
 
     const [doc, setDoc] = useState(null);
     const [imageBase64, setImageBase64] = useState(null);
@@ -60,7 +61,7 @@ const scale = useState(new Animated.Value(0.95))[0];
             const docs = await getDocs();
             const found = docs[docType];
             if (!found) {
-                Alert.alert('Not found', 'Document not found.');
+                Alert.alert(t('viewer.notFoundTitle'), t('viewer.notFoundMessage'));
                 navigation.goBack();
                 return;
             }
@@ -70,7 +71,10 @@ const scale = useState(new Animated.Value(0.95))[0];
             const b64 = await loadDocFileBase64(found.localUri);
             setImageBase64(b64);
         } catch (e) {
-            Alert.alert('Error', `Could not load document: ${e.message}`);
+            Alert.alert(
+                t('common.error'),
+                t('viewer.loadError', { message: e.message })
+            );
             navigation.goBack();
         } finally {
             setLoadingImage(false);
@@ -79,12 +83,12 @@ const scale = useState(new Animated.Value(0.95))[0];
 
     const handleDelete = () => {
         Alert.alert(
-            'Delete document',
-            `Are you sure you want to delete your ${docLabel}? This cannot be undone.`,
+            t('viewer.deleteTitle'),
+            t('viewer.deleteMessage', { docLabel }),
             [
-                { text: 'Cancel', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 {
-                    text: 'Delete',
+                    text: t('common.delete'),
                     style: 'destructive',
                     onPress: () =>
                         run(
@@ -94,7 +98,7 @@ const scale = useState(new Animated.Value(0.95))[0];
                             },
                             {
                                 onSuccess: () => navigation.goBack(),
-                                errorMessage: `Could not delete ${docLabel}. Please try again.`
+                                errorMessage: t('viewer.deleteError', { docLabel })
                             }
                         )
                 }
@@ -231,32 +235,34 @@ const closeFullScreen = () => {
                     ) : (
                         <View style={styles.imagePlaceholder}>
                             <Text style={styles.imageError}>
-                                Could not load image
+                                {t('viewer.couldNotLoadImage')}
                             </Text>
                         </View>
                     )}
 
                     <Text style={styles.fullScreenHint}>
-                        Click for full screen
+                        {t('viewer.fullScreenHint')}
                     </Text>
                 </View>
 
                 {/* Info panel */}
                 <View style={styles.infoPanel}>
                     <View style={styles.infoRow}>
-                        <Text style={styles.infoLabel}>Status</Text>
+                        <Text style={styles.infoLabel}>{t('viewer.status')}</Text>
                         <StatusBadge status={status} />
                     </View>
 
                     <View style={[styles.infoRow, styles.infoDivider]}>
-                        <Text style={styles.infoLabel}>Expires</Text>
+                        <Text style={styles.infoLabel}>{t('viewer.expires')}</Text>
                         <Text style={styles.infoVal}>
-                            {formatPrettyDate(doc.expiryDate)}
+                            {formatPrettyDate(doc.expiryDate, locale)}
                         </Text>
                     </View>
 
                     <View style={[styles.infoRow, styles.infoDivider]}>
-                        <Text style={styles.infoLabel}>Days remaining</Text>
+                        <Text style={styles.infoLabel}>
+                            {t('viewer.daysRemaining')}
+                        </Text>
                         <Text
                             style={[
                                 styles.infoVal,
@@ -271,8 +277,10 @@ const closeFullScreen = () => {
                             ]}
                         >
                             {daysUntil(doc.expiryDate) > 0
-                                ? `${daysUntil(doc.expiryDate)} days`
-                                : 'Expired'}
+                                ? t('common.days', {
+                                      count: daysUntil(doc.expiryDate)
+                                  })
+                                : t('common.expired')}
                         </Text>
                     </View>
 
@@ -287,7 +295,7 @@ const closeFullScreen = () => {
                             }
                         ]}
                     >
-                        <Text style={styles.infoLabel}>Validity</Text>
+                        <Text style={styles.infoLabel}>{t('viewer.validity')}</Text>
                         <ExpiryBar
                             uploadedAt={doc.uploadedAt}
                             expiryDate={doc.expiryDate}
@@ -301,14 +309,14 @@ const closeFullScreen = () => {
                         style={styles.actionBtn}
                         onPress={handleReplace}
                     >
-                        <Text style={styles.actionBtnText}>Replace</Text>
+                        <Text style={styles.actionBtnText}>{t('viewer.replace')}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
                         style={[styles.actionBtn, styles.actionBtnPrimary]}
                         onPress={handleShare}
                     >
-                        <Text style={styles.actionBtnTextPrimary}>Share</Text>
+                        <Text style={styles.actionBtnTextPrimary}>{t('common.share')}</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -325,14 +333,14 @@ const closeFullScreen = () => {
                                 { color: theme.colors.red }
                             ]}
                         >
-                            Delete
+                            {t('viewer.delete')}
                         </Text>
                     </TouchableOpacity>
                     
                 </View>
                 <InfoBanner
                                     text={
-                                        'When replacing docs, they are automatically added to archive.'
+                                        t('viewer.archiveInfo')
                                     }
                                     color={colors.blue}
                                     backgroundColor={'#1a1f2e'}

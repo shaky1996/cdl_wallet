@@ -17,17 +17,19 @@ import { theme } from '../styles/theme';
 import { common } from '../styles/common';
 import { loadDocFileBase64 } from '../services/fileSystem';
 import { deleteArchivedDoc } from '../services/storage';
-import { DOC_LABELS } from '../constants/docTypes';
 import BackButtonBar from '../components/BackButtonBar';
 import { formatPrettyDate } from '../utils/dateHelpers';
 import * as Sharing from 'expo-sharing';
 import { imageToPdf } from '../services/pdfExport';
 import StatusBadge from '../components/StatusBadge';
+import { useLanguage } from '../i18n/LanguageContext';
 
 
 
 export default function ArchivedDocViewerScreen({ navigation, route }) {
     const { item } = route.params;
+    const { locale, t } = useLanguage();
+    const docLabel = t(`docs.${item.docType}`);
 
     const [imageBase64, setImageBase64] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -44,7 +46,7 @@ export default function ArchivedDocViewerScreen({ navigation, route }) {
             const b64 = await loadDocFileBase64(item.localUri);
             setImageBase64(b64);
         } catch (e) {
-            Alert.alert('Error', 'Could not load image');
+            Alert.alert(t('common.error'), t('viewer.couldNotLoadImage'));
         } finally {
             setLoading(false);
         }
@@ -85,12 +87,12 @@ export default function ArchivedDocViewerScreen({ navigation, route }) {
 
     const handleDelete = () => {
         Alert.alert(
-            'Delete document',
-            'Are you sure you want to delete this archived document?',
+            t('viewer.deleteTitle'),
+            t('viewer.archivedDeleteMessage'),
             [
-                { text: 'Cancel', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 {
-                    text: 'Delete',
+                    text: t('common.delete'),
                     style: 'destructive',
                     onPress: async () => {
                         await deleteArchivedDoc(item.id);
@@ -105,11 +107,11 @@ export default function ArchivedDocViewerScreen({ navigation, route }) {
         try {
             const pdf = await imageToPdf(
                 { temp: item },
-                { temp: DOC_LABELS[item.docType] }
+                { temp: docLabel }
             );
             await Sharing.shareAsync(pdf);
         } catch (e) {
-            Alert.alert('Error', 'Could not share document');
+            Alert.alert(t('common.error'), t('viewer.archivedShareError'));
         }
     };
 
@@ -118,7 +120,7 @@ export default function ArchivedDocViewerScreen({ navigation, route }) {
     return (
         <SafeAreaView style={common.safeArea}>
             <BackButtonBar
-                title={`Old ${DOC_LABELS[item.docType]}`}
+                title={t('docs.oldDocument', { docLabel })}
                 onBack={() => navigation.goBack()}
             />
 
@@ -145,13 +147,13 @@ export default function ArchivedDocViewerScreen({ navigation, route }) {
                     ) : (
                         <View style={styles.imagePlaceholder}>
                             <Text style={styles.imageError}>
-                                Could not load image
+                                {t('viewer.couldNotLoadImage')}
                             </Text>
                         </View>
                     )}
 
                     <Text style={styles.fullScreenHint}>
-                        Click for full screen
+                        {t('viewer.fullScreenHint')}
                     </Text>
                 </View>
 
@@ -159,20 +161,24 @@ export default function ArchivedDocViewerScreen({ navigation, route }) {
 
                 <View style={styles.infoPanel}>
                     <View style={[styles.infoRow, styles.infoDivider]}>
-                        <Text style={styles.infoLabel}>Status</Text>
+                        <Text style={styles.infoLabel}>{t('viewer.status')}</Text>
 
                         <StatusBadge status={status} />
                     </View>
                     <View style={[styles.infoRow, styles.infoDivider]}>
-                        <Text style={styles.infoLabel}>Expiration date</Text>
+                        <Text style={styles.infoLabel}>
+                            {t('viewer.expirationDate')}
+                        </Text>
                         <Text style={styles.infoVal}>
-                            {formatPrettyDate(item.expiryDate)}
+                            {formatPrettyDate(item.expiryDate, locale)}
                         </Text>
                     </View>
                     <View style={[styles.infoRow, styles.infoDivider]}>
-                        <Text style={styles.infoLabel}>Added to archive</Text>
+                        <Text style={styles.infoLabel}>
+                            {t('viewer.addedToArchive')}
+                        </Text>
                         <Text style={styles.infoVal}>
-                            {formatPrettyDate(item.archivedAt)}
+                            {formatPrettyDate(item.archivedAt, locale)}
                         </Text>
                     </View>
                 </View>
@@ -183,7 +189,9 @@ export default function ArchivedDocViewerScreen({ navigation, route }) {
                         style={[styles.actionBtn, styles.actionBtnPrimary]}
                         onPress={handleShare}
                     >
-                        <Text style={styles.actionBtnTextPrimary}>Share</Text>
+                        <Text style={styles.actionBtnTextPrimary}>
+                            {t('common.share')}
+                        </Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -199,7 +207,7 @@ export default function ArchivedDocViewerScreen({ navigation, route }) {
                                 { color: theme.colors.red }
                             ]}
                         >
-                            Delete
+                            {t('viewer.delete')}
                         </Text>
                     </TouchableOpacity>
                 </View>

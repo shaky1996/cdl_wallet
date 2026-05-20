@@ -1,21 +1,24 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { colors } from '../constants/colors';
-import { DOC_LABELS } from '../constants/docTypes';
 import {
     getStatus,
-    daysUntil,
     formatPrettyDate
 } from '../utils/dateHelpers';
 import ExpiryBar from './ExpiryBar';
 import { STATUS_CONFIG } from '../constants/statusConfig';
+import { useLanguage } from '../i18n/LanguageContext';
+import { daysUntil } from '../utils/dateHelpers';
 
 export default function DocCard({ docType, doc, onPress }) {
+    const { locale, t } = useLanguage();
+    const docLabel = t(`docs.${docType}`);
+
     if (!doc) {
         return (
             <TouchableOpacity style={styles.card} onPress={onPress}>
-                <Text style={styles.docType}>{DOC_LABELS[docType]}</Text>
-                <Text style={styles.emptyText}>Tap to upload ›</Text>
+                <Text style={styles.docType}>{docLabel}</Text>
+                <Text style={styles.emptyText}>{t('home.tapToUpload')}</Text>
             </TouchableOpacity>
         );
     }
@@ -32,9 +35,9 @@ export default function DocCard({ docType, doc, onPress }) {
             {/* HEADER */}
             <View style={styles.row}>
                 <View>
-                    <Text style={styles.docType}>{DOC_LABELS[docType]}</Text>
+                    <Text style={styles.docType}>{docLabel}</Text>
                     <Text style={styles.docName}>
-                        {doc.label || DOC_LABELS[docType]}
+                        {docLabel}
                     </Text>
                 </View>
 
@@ -48,16 +51,16 @@ export default function DocCard({ docType, doc, onPress }) {
                     ]}
                 >
                     <Text style={[styles.badgeText, { color: cfg.text }]}>
-                        {cfg.label}
+                        {t(`status.${status}`)}
                     </Text>
                 </View>
             </View>
 
             {/* EXPIRY DATE */}
             <View style={styles.expiryRow}>
-                <Text style={styles.expiryLabel}>Expires</Text>
+                <Text style={styles.expiryLabel}>{t('home.expires')}</Text>
                 <Text style={styles.expiryDate}>
-                    {formatPrettyDate(doc.expiryDate)}
+                    {formatPrettyDate(doc.expiryDate, locale)}
                 </Text>
             </View>
 

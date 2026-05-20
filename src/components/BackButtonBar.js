@@ -3,8 +3,11 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { theme } from '../styles/theme';
 import { colors } from '../constants/colors';
 import { Ionicons } from '@expo/vector-icons';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function BackButtonBar({ title, onBack, rightComponent }) {
+    const { t } = useLanguage();
+
     return (
         <View style={styles.header}>
             {/* LEFT */}
@@ -16,7 +19,7 @@ export default function BackButtonBar({ title, onBack, rightComponent }) {
                     name={'chevron-back-outline'}
                     style={styles.backIcon}
                 />
-                <Text style={styles.backBtn}>Back</Text>
+                <Text style={styles.backBtn}>{t('common.back')}</Text>
             </TouchableOpacity>
 
             {/* CENTER */}
