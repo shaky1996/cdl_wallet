@@ -14,11 +14,15 @@ import { deleteDoc } from '../services/fileSystem';
 import DocCard from '../components/DocCard';
 import Header from '../components/Header';
 import { useLanguage } from '../i18n/LanguageContext';
+import { ALL_DOC_TYPES, isPremiumDocType } from '../constants/docTypes';
+import { usePremium } from '../iap/PremiumContext';
+import { Ionicons } from '@expo/vector-icons';
 
 
 export default function HomeScreen({ navigation }) {
     const [docs, setDocs] = React.useState({});
     const { t } = useLanguage();
+    const { isPremium } = usePremium();
 
     useFocusEffect(
         useCallback(() => {
@@ -33,6 +37,17 @@ export default function HomeScreen({ navigation }) {
         setDocs(updatedDocs);
     };
 
+    const handleDocPress = (docType) => {
+        if (isPremiumDocType(docType) && !isPremium) {
+            navigation.navigate('Premium');
+            return;
+        }
+
+        docs[docType]
+            ? navigation.navigate('DocViewer', { docType })
+            : navigation.navigate('Upload', { docType });
+    };
+
     return (
         <SafeAreaView style={styles.safe}>
             <Header subtitle={t('header.home')} />
@@ -43,33 +58,43 @@ export default function HomeScreen({ navigation }) {
             >
                 <Text style={styles.sectionLabel}>{t('home.sectionLabel')}</Text>
 
-                <DocCard
-                    docType='cdl'
-                    doc={docs.cdl}
-                    onPress={() =>
-                        docs.cdl
-                            ? navigation.navigate('DocViewer', {
-                                  docType: 'cdl'
-                              })
-                            : navigation.navigate('Upload', { docType: 'cdl' })
-                    }
-                    onDelete={() => handleDelete('cdl')}
-                />
+                {ALL_DOC_TYPES.map((docType) => {
+                    const locked = isPremiumDocType(docType) && !isPremium;
 
-                <DocCard
-                    docType='med_card'
-                    doc={docs.med_card}
-                    onPress={() =>
-                        docs.med_card
-                            ? navigation.navigate('DocViewer', {
-                                  docType: 'med_card'
-                              })
-                            : navigation.navigate('Upload', {
-                                  docType: 'med_card'
-                              })
+                    if (locked) {
+                        return (
+                            <TouchableOpacity
+                                key={docType}
+                                style={styles.lockedCard}
+                                onPress={() => navigation.navigate('Premium')}
+                            >
+                                <View>
+                                    <Text style={styles.lockedType}>
+                                        {t(`docs.${docType}`)}
+                                    </Text>
+                                    <Text style={styles.lockedText}>
+                                        {t('premium.tapToUnlock')}
+                                    </Text>
+                                </View>
+                                <Ionicons
+                                    name='lock-closed-outline'
+                                    size={20}
+                                    color={colors.accent}
+                                />
+                            </TouchableOpacity>
+                        );
                     }
-                    onDelete={() => handleDelete('med_card')}
-                />
+
+                    return (
+                        <DocCard
+                            key={docType}
+                            docType={docType}
+                            doc={docs[docType]}
+                            onPress={() => handleDocPress(docType)}
+                            onDelete={() => handleDelete(docType)}
+                        />
+                    );
+                })}
 
                 <TouchableOpacity
                     style={styles.shareBtn}
@@ -112,5 +137,27 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 4
     },
-    shareBtnText: { color: '#1a1200', fontSize: 15, fontWeight: '600' }
+    shareBtnText: { color: '#1a1200', fontSize: 15, fontWeight: '600' },
+    lockedCard: {
+        minHeight: 86,
+        backgroundColor: colors.bgCard,
+        borderRadius: 14,
+        padding: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 12
+    },
+    lockedType: {
+        color: colors.textMuted,
+        fontSize: 11,
+        textTransform: 'uppercase',
+        letterSpacing: 0.7,
+        marginBottom: 4
+    },
+    lockedText: {
+        color: colors.accent,
+        fontSize: 14,
+        fontWeight: '600'
+    }
 });

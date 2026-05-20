@@ -15,6 +15,7 @@ import ArchiveScreen from '../screens/ArchiveScreen';
 import ArchivedDocViewerScreen from '../screens/ArchivedDocViewerScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
+import PremiumScreen from '../screens/PremiumScreen';
 import LockGate from '../components/LockGate';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -170,6 +171,10 @@ export default function AppNavigator() {
                             <RootStack.Screen
                                 name='ArchiveUpload'
                                 component={UploadScreen}
+                            />
+                            <RootStack.Screen
+                                name='Premium'
+                                component={PremiumScreen}
                             />
                         </RootStack.Navigator>
                     </LockGate>

@@ -68,7 +68,8 @@ export const imageToPdf = async (docs, docLabels) => {
             : 'No-Expiry';
 
         const fileName =
-            sanitizeFileName(`${'Doc'} Expiration ${expiryText}`) + '.pdf';
+            sanitizeFileName(`${firstDocLabel || 'Doc'} Expiration ${expiryText}`) +
+            '.pdf';
 
         const finalPath = FileSystem.cacheDirectory + fileName;
 

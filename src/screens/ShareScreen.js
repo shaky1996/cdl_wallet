@@ -22,14 +22,16 @@ import InfoBanner from '../components/InfoBanner';
 import { useRoute } from '@react-navigation/native';
 import { useEffect } from 'react';
 import { useLanguage } from '../i18n/LanguageContext';
+import { ALL_DOC_TYPES, isPremiumDocType } from '../constants/docTypes';
+import { usePremium } from '../iap/PremiumContext';
 
 export default function ShareScreen() {
     const { locale, t } = useLanguage();
+    const { isPremium } = usePremium();
     const [docs, setDocs] = useState({});
-    const [selected, setSelected] = useState({
-        cdl: false,
-        med_card: false
-    });
+    const [selected, setSelected] = useState(
+        ALL_DOC_TYPES.reduce((acc, type) => ({ ...acc, [type]: false }), {})
+    );
 
     const [email, setEmail] = useState('');
     const [sending, setSending] = useState(false);
@@ -56,10 +58,12 @@ export default function ShareScreen() {
 
             return () => {
                 // RESET WHEN SCREEN LOSES FOCUS
-                setSelected({
-                    cdl: false,
-                    med_card: false
-                });
+                setSelected(
+                    ALL_DOC_TYPES.reduce(
+                        (acc, type) => ({ ...acc, [type]: false }),
+                        {}
+                    )
+                );
                 setEmail('');
             };
         }, [])
@@ -82,7 +86,10 @@ export default function ShareScreen() {
         };
 
     const chosenTypes = Object.keys(selected).filter(
-        (t) => selected[t] && docs[t]
+        (type) =>
+            selected[type] &&
+            docs[type] &&
+            !(isPremiumDocType(type) && !isPremium)
     );
 
     if (!chosenTypes.length) {
@@ -103,8 +110,13 @@ export default function ShareScreen() {
 
         // 2. Generate PDF (returns file:// from expo-print)
         const pdfUri = await imageToPdf(selectedDocs, {
-            cdl: t('docs.cdl'),
-            med_card: t('docs.med_card')
+            ...ALL_DOC_TYPES.reduce(
+                (labels, type) => ({
+                    ...labels,
+                    [type]: t(`docs.${type}`)
+                }),
+                {}
+            )
         });
 
         // 3. Move to safe cache location (IMPORTANT for MailComposer)
@@ -136,7 +148,10 @@ export default function ShareScreen() {
     // ✅ NEW: universal share handler
     const handleShare = async () => {
     const chosenTypes = Object.keys(selected).filter(
-        (t) => selected[t] && docs[t]
+        (type) =>
+            selected[type] &&
+            docs[type] &&
+            !(isPremiumDocType(type) && !isPremium)
     );
 
     if (!chosenTypes.length)
@@ -150,8 +165,13 @@ export default function ShareScreen() {
         });
 
         const pdfUri = await imageToPdf(selectedDocs, {
-            cdl: t('docs.cdl'),
-            med_card: t('docs.med_card')
+            ...ALL_DOC_TYPES.reduce(
+                (labels, type) => ({
+                    ...labels,
+                    [type]: t(`docs.${type}`)
+                }),
+                {}
+            )
         });
 
         await Sharing.shareAsync(pdfUri);
@@ -165,8 +185,9 @@ export default function ShareScreen() {
             <Header subtitle={t('header.share')} />
             <View style={styles.body}>
                 <Text style={styles.label}>{t('shareScreen.selectDocuments')}</Text>
-                {['cdl', 'med_card'].map((type) => {
-                    const isAvailable = !!docs[type];
+                {ALL_DOC_TYPES.map((type) => {
+                    const locked = isPremiumDocType(type) && !isPremium;
+                    const isAvailable = !!docs[type] && !locked;
 
                     return (
                         <TouchableOpacity
@@ -194,7 +215,9 @@ export default function ShareScreen() {
                                     {t(`docs.${type}`)}
                                 </Text>
                                 <Text style={styles.docSub}>
-                                    {docs[type]
+                                    {locked
+                                        ? t('premium.lockedDocument')
+                                        : docs[type]
                                         ? t('shareScreen.expiresOn', {
                                               date: formatPrettyDate(
                                                   docs[type].expiryDate,

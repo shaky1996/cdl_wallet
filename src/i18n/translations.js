@@ -42,9 +42,51 @@ export const translations = {
         docs: {
             cdl: 'CDL',
             med_card: 'Med Card',
+            truck_registration: 'Truck Registration',
+            annual_inspection: 'Annual Inspection',
+            insurance: 'Insurance',
             document: 'Document',
             oldDocument: 'Old {docLabel}',
             notUploaded: 'Not uploaded'
+        },
+        premium: {
+            title: 'Premium',
+            headline: 'Unlock the complete wallet',
+            subtitle:
+                'Track truck registration, annual inspection, and insurance alongside your CDL and med card.',
+            tapToUnlock: 'Premium - tap to unlock',
+            lockedDocument: 'Premium document',
+            featureRegistration: 'Store and track truck registration',
+            featureInspection: 'Store and track annual inspection',
+            featureInsurance: 'Store and track insurance',
+            setupBanner:
+                'RevenueCat is installed. Add your API keys and products in RevenueCat to enable live purchases.',
+            active: 'Premium access is active.',
+            restore: 'Restore purchases',
+            setupRequiredTitle: 'RevenueCat setup required',
+            setupRequiredMessage:
+                'Add your RevenueCat API keys before testing purchases.',
+            purchaseError: 'Purchase could not be completed. Please try again.',
+            restoreError: 'Could not restore purchases. Please try again.',
+            restoredTitle: 'Purchases restored',
+            restoredMessage: 'Premium access has been restored.',
+            noPurchasesTitle: 'No purchases found',
+            noPurchasesMessage:
+                'No active premium purchase was found for this account.',
+            plans: {
+                monthly: {
+                    title: 'Monthly',
+                    subtitle: '$2.99 per month'
+                },
+                annual: {
+                    title: 'Annual',
+                    subtitle: '$19.99 per year'
+                },
+                lifetime: {
+                    title: 'Lifetime',
+                    subtitle: 'One-time $29.99 access'
+                }
+            }
         },
         status: {
             valid: 'Valid',
@@ -259,9 +301,51 @@ export const translations = {
         docs: {
             cdl: 'CDL',
             med_card: 'Мед Карта',
+            truck_registration: 'Регистрация грузовика',
+            annual_inspection: 'Годовая инспекция',
+            insurance: 'Страховка',
             document: 'Документ',
             oldDocument: 'Старый документ: {docLabel}',
             notUploaded: 'Не загружено'
+        },
+        premium: {
+            title: 'Premium',
+            headline: 'Откройте полный кошелек',
+            subtitle:
+                'Отслеживайте регистрацию грузовика, годовую инспекцию и страховку вместе с CDL и медкартой.',
+            tapToUnlock: 'Premium - нажмите, чтобы открыть',
+            lockedDocument: 'Premium документ',
+            featureRegistration: 'Хранение и контроль регистрации грузовика',
+            featureInspection: 'Хранение и контроль годовой инспекции',
+            featureInsurance: 'Хранение и контроль страховки',
+            setupBanner:
+                'RevenueCat установлен. Добавьте API-ключи и продукты в RevenueCat, чтобы включить реальные покупки.',
+            active: 'Premium доступ активен.',
+            restore: 'Восстановить покупки',
+            setupRequiredTitle: 'Нужна настройка RevenueCat',
+            setupRequiredMessage:
+                'Добавьте API-ключи RevenueCat перед тестированием покупок.',
+            purchaseError: 'Не удалось завершить покупку. Попробуйте еще раз.',
+            restoreError: 'Не удалось восстановить покупки. Попробуйте еще раз.',
+            restoredTitle: 'Покупки восстановлены',
+            restoredMessage: 'Premium доступ восстановлен.',
+            noPurchasesTitle: 'Покупки не найдены',
+            noPurchasesMessage:
+                'Для этого аккаунта не найдена активная Premium покупка.',
+            plans: {
+                monthly: {
+                    title: 'Ежемесячно',
+                    subtitle: '$2.99 в месяц'
+                },
+                annual: {
+                    title: 'Ежегодно',
+                    subtitle: '$19.99 в год'
+                },
+                lifetime: {
+                    title: 'Навсегда',
+                    subtitle: 'Единоразовый доступ за $29.99'
+                }
+            }
         },
         status: {
             valid: 'Активен',

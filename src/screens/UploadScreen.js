@@ -33,12 +33,15 @@ import { useAsyncError } from '../hooks/useAsyncError';
 import BackButtonBar from '../components/BackButtonBar';
 import { formatMMDDYYYY } from '../utils/dateHelpers';
 import { useLanguage } from '../i18n/LanguageContext';
+import { ALL_DOC_TYPES, BASE_DOC_TYPES } from '../constants/docTypes';
+import { usePremium } from '../iap/PremiumContext';
 
 
 export default function UploadScreen({ navigation, route }) {
     const { archiveOnly = false, docType: initialDocType = 'cdl' } =
         route.params || {};
     const { locale, t } = useLanguage();
+    const { isPremium } = usePremium();
     const [selectedDocType, setSelectedDocType] = useState(initialDocType);
     const docType = selectedDocType;
     const docLabel = t(`docs.${docType}`);
@@ -231,7 +234,7 @@ const handleGallery = async () => {
                             {t('upload.documentType')}
                         </Text>
                         <View style={styles.docTypeOptions}>
-                            {['cdl', 'med_card'].map((type) => {
+                            {(isPremium ? ALL_DOC_TYPES : BASE_DOC_TYPES).map((type) => {
                                 const isSelected = selectedDocType === type;
 
                                 return (

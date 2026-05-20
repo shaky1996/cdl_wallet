@@ -4,11 +4,11 @@ import { useFocusEffect } from '@react-navigation/native';
 import {
     getDocs,
     saveDoc,
-    deleteDoc,
     getArchive,
+    archiveDoc,
     deleteArchivedDoc
 } from '../services/storage';
-import { saveDocFile, moveToArchive } from '../services/fileSystem';
+import { deleteDoc, saveDocFile, moveToArchive } from '../services/fileSystem';
 import {
     scheduleExpiryReminders,
     cancelDocReminders
@@ -60,10 +60,23 @@ export const useDocs = ({ autoLoad = true } = {}) => {
         setLoading(true);
         setError(null);
         try {
-            // Save encrypted file to device
+            const existingDocs = await getDocs();
+            const existing = existingDocs[docType];
+
+            if (existing?.localUri) {
+                const archivedUri = await moveToArchive(
+                    docType,
+                    existing.localUri
+                );
+
+                await archiveDoc(docType, {
+                    ...existing,
+                    localUri: archivedUri
+                });
+            }
+
             const localUri = await saveDocFile(docType, sourceUri);
 
-            // Save metadata — storage.js handles archiving the old doc internally
             await saveDoc(docType, {
                 localUri,
                 expiryDate,
