@@ -45,6 +45,7 @@ export const translations = {
             truck_registration: 'Truck Registration',
             annual_inspection: 'Annual Inspection',
             insurance: 'Insurance',
+            work_permit_green_card: 'Work Permit / Green Card',
             document: 'Document',
             oldDocument: 'Old {docLabel}',
             notUploaded: 'Not uploaded'
@@ -53,12 +54,13 @@ export const translations = {
             title: 'Premium',
             headline: 'Unlock the complete wallet',
             subtitle:
-                'Track truck registration, annual inspection, and insurance alongside your CDL and med card.',
+                'Track truck registration, annual inspection, insurance, and work authorization alongside your CDL and med card.',
             tapToUnlock: 'Premium - tap to unlock',
             lockedDocument: 'Premium document',
             featureRegistration: 'Store and track truck registration',
             featureInspection: 'Store and track annual inspection',
             featureInsurance: 'Store and track insurance',
+            featureWorkPermit: 'Store and track work permit or green card',
             setupBanner:
                 'RevenueCat is installed. Add your API keys and products in RevenueCat to enable live purchases.',
             active: 'Premium access is active.',
@@ -304,20 +306,23 @@ export const translations = {
             truck_registration: 'Регистрация грузовика',
             annual_inspection: 'Годовая инспекция',
             insurance: 'Страховка',
+            work_permit_green_card: 'Разрешение на работу / Green Card',
             document: 'Документ',
             oldDocument: 'Старый документ: {docLabel}',
             notUploaded: 'Не загружено'
         },
         premium: {
             title: 'Premium',
-            headline: 'Откройте полный кошелек',
+            headline: 'Откройте Premium в CDL Wallet',
             subtitle:
-                'Отслеживайте регистрацию грузовика, годовую инспекцию и страховку вместе с CDL и медкартой.',
+                'Отслеживайте срок действия и храните разрешение на работу, регистрацию грузовика, годовую инспекцию и страховку вместе с CDL и медкартой.',
             tapToUnlock: 'Premium - нажмите, чтобы открыть',
             lockedDocument: 'Premium документ',
-            featureRegistration: 'Хранение и контроль регистрации грузовика',
-            featureInspection: 'Хранение и контроль годовой инспекции',
-            featureInsurance: 'Хранение и контроль страховки',
+            featureRegistration: 'Хранение и отслеживание срока действия регистрации грузовика',
+            featureInspection: 'Хранение и отслеживание срока действия годовой инспекции',
+            featureInsurance: 'Хранение и отслеживание срока действия страховки',
+            featureWorkPermit:
+                'Хранение и отслеживание срока действия разрешения на работу или Green Card',
             setupBanner:
                 'RevenueCat установлен. Добавьте API-ключи и продукты в RevenueCat, чтобы включить реальные покупки.',
             active: 'Premium доступ активен.',
@@ -331,7 +336,7 @@ export const translations = {
             restoredMessage: 'Premium доступ восстановлен.',
             noPurchasesTitle: 'Покупки не найдены',
             noPurchasesMessage:
-                'Для этого аккаунта не найдена активная Premium покупка.',
+                'Для этого аккаунта не найдена активная Premium подписка.',
             plans: {
                 monthly: {
                     title: 'Ежемесячно',
@@ -343,7 +348,7 @@ export const translations = {
                 },
                 lifetime: {
                     title: 'Навсегда',
-                    subtitle: 'Единоразовый доступ за $29.99'
+                    subtitle: 'Единоразовая покупка за $29.99'
                 }
             }
         },

@@ -66,9 +66,11 @@ export default function PremiumScreen({ navigation }) {
 
                 <View style={styles.featureList}>
                     {[
+                        t('premium.featureWorkPermit'),
                         t('premium.featureRegistration'),
                         t('premium.featureInspection'),
                         t('premium.featureInsurance')
+                        
                     ].map((feature) => (
                         <View
                             key={feature}

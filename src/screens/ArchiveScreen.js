@@ -5,7 +5,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     SafeAreaView,
-    FlatList,
+    ScrollView,
     Alert,
     ActivityIndicator,
     Image
@@ -84,8 +84,9 @@ export default function ArchiveScreen({ navigation }) {
         navigation.navigate('ArchiveUpload', { archiveOnly: true });
     };
 
-    const renderItem = ({ item }) => (
+    const renderArchiveItem = (item) => (
         <TouchableOpacity
+            key={item.id}
             activeOpacity={0.9}
             onPress={() => handleView(item)}
             style={styles.archiveCard}
@@ -162,7 +163,10 @@ export default function ArchiveScreen({ navigation }) {
         <SafeAreaView style={styles.safe}>
             <Header subtitle={t('header.archive')} />
 
-            <View style={styles.body}>
+            <ScrollView
+                style={styles.body}
+                contentContainerStyle={styles.scrollContent}
+            >
                 <Text style={styles.label}>{t('archive.archivedDocuments')}</Text>
 
 
@@ -190,17 +194,11 @@ export default function ArchiveScreen({ navigation }) {
                         </Text>
                     </View>
                 ) : (
-                    <FlatList
-                        data={archive}
-                        keyExtractor={(item) => item.id}
-                        renderItem={renderItem}
-                        contentContainerStyle={styles.listContent}
-                        ItemSeparatorComponent={() => (
-                            <View style={{ height: 8 }} />
-                        )}
-                    />
+                    <View style={styles.listContent}>
+                        {archive.map(renderArchiveItem)}
+                    </View>
                 )}
-            </View>
+            </ScrollView>
         </SafeAreaView>
     );
 }
@@ -213,8 +211,12 @@ const styles = StyleSheet.create({
 
     body: {
         flex: 1,
-        backgroundColor: colors.bgBody,
+        backgroundColor: colors.bgBody
+    },
+
+    scrollContent: {
         padding: 16,
+        paddingBottom: 40,
         gap: 8
     },
 
@@ -229,7 +231,7 @@ const styles = StyleSheet.create({
 
     listContent: {
         paddingTop: 8,
-        paddingBottom: 40
+        gap: 8
     },
 
     archiveCard: {

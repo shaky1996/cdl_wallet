@@ -68,7 +68,7 @@ export default function HomeScreen({ navigation }) {
                                 style={styles.lockedCard}
                                 onPress={() => navigation.navigate('Premium')}
                             >
-                                <View>
+                                <View style={styles.lockedContent}>
                                     <Text style={styles.lockedType}>
                                         {t(`docs.${docType}`)}
                                     </Text>
@@ -143,10 +143,15 @@ const styles = StyleSheet.create({
         backgroundColor: colors.bgCard,
         borderRadius: 14,
         padding: 16,
+        borderWidth: 1,
+        borderColor: colors.border,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: 12
+    },
+    lockedContent: {
+        flex: 1
     },
     lockedType: {
         color: colors.textMuted,

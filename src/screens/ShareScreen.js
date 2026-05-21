@@ -6,7 +6,8 @@ import {
     TouchableOpacity,
     StyleSheet,
     SafeAreaView,
-    Alert
+    Alert,
+    ScrollView
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import * as MailComposer from 'expo-mail-composer';
@@ -183,7 +184,11 @@ export default function ShareScreen() {
     return (
         <SafeAreaView style={styles.safe}>
             <Header subtitle={t('header.share')} />
-            <View style={styles.body}>
+            <ScrollView
+                style={styles.body}
+                contentContainerStyle={styles.scrollContent}
+                keyboardShouldPersistTaps='handled'
+            >
                 <Text style={styles.label}>{t('shareScreen.selectDocuments')}</Text>
                 {ALL_DOC_TYPES.map((type) => {
                     const locked = isPremiumDocType(type) && !isPremium;
@@ -276,7 +281,7 @@ export default function ShareScreen() {
                         {t('shareScreen.shareDocuments')}
                     </Text>
                 </TouchableOpacity>
-            </View>
+            </ScrollView>
         </SafeAreaView>
     );
 }
@@ -289,7 +294,12 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         padding: 20
     },
-    body: { flex: 1, backgroundColor: colors.bgBody, padding: 16, gap: 8 },
+    body: { flex: 1, backgroundColor: colors.bgBody },
+    scrollContent: {
+        padding: 16,
+        paddingBottom: 40,
+        gap: 8
+    },
     label: {
         color: colors.textMuted,
         fontSize: 10,
