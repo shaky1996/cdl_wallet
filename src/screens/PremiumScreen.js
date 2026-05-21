@@ -6,7 +6,8 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
+    Linking
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import BackButtonBar from '../components/BackButtonBar';
@@ -16,12 +17,6 @@ import { common } from '../styles/common';
 import { useLanguage } from '../i18n/LanguageContext';
 import { usePremium } from '../iap/PremiumContext';
 import { getPackageKey } from '../services/revenueCat';
-
-const fallbackPrices = {
-    monthly: '$2.99',
-    annual: '$19.99',
-    lifetime: '$29.99'
-};
 
 const icons = {
     monthly: 'calendar-outline',
@@ -102,61 +97,76 @@ export default function PremiumScreen({ navigation }) {
                     </View>
                 ) : null}
 
-                <View style={styles.plans}>
-                    {packages.map((pkg) => {
-                        const key = getPackageKey(pkg);
-                        const isPurchasing =
-                            purchasingPackageId === pkg.identifier;
-                        const price =
-                            pkg.product?.priceString ||
-                            pkg.storeProduct?.priceString ||
-                            fallbackPrices[key];
+                {packages.length ? (
+                    <View style={styles.plans}>
+                        {packages.map((pkg) => {
+                            const key = getPackageKey(pkg);
+                            const isPurchasing =
+                                purchasingPackageId === pkg.identifier;
+                            const price =
+                                pkg.product?.priceString ||
+                                pkg.storeProduct?.priceString ||
+                                t('premium.priceUnavailable');
 
-                        return (
-                            <TouchableOpacity
-                                key={pkg.identifier}
-                                style={[
-                                    styles.plan,
-                                    key === 'annual' && styles.planFeatured
-                                ]}
-                                onPress={() => purchase(pkg)}
-                                disabled={loading || !!purchasingPackageId}
-                            >
-                                <View style={styles.planLeft}>
-                                    <Ionicons
-                                        name={icons[key]}
-                                        size={22}
-                                        color={colors.accent}
-                                    />
-                                    <View>
-                                        <Text style={styles.planTitle}>
-                                            {t(`premium.plans.${key}.title`)}
-                                        </Text>
-                                        <Text style={styles.planSub}>
-                                            {t(`premium.plans.${key}.subtitle`)}
-                                        </Text>
-                                    </View>
-                                </View>
-
-                                <View style={styles.planRight}>
-                                    <Text style={styles.price}>{price}</Text>
-                                    {isPurchasing ? (
-                                        <ActivityIndicator
-                                            color={colors.accent}
-                                            size='small'
-                                        />
-                                    ) : (
+                            return (
+                                <TouchableOpacity
+                                    key={pkg.identifier}
+                                    style={[
+                                        styles.plan,
+                                        key === 'annual' && styles.planFeatured
+                                    ]}
+                                    onPress={() => purchase(pkg)}
+                                    disabled={loading || !!purchasingPackageId}
+                                >
+                                    <View style={styles.planLeft}>
                                         <Ionicons
-                                            name='chevron-forward'
-                                            size={18}
-                                            color={colors.textMuted}
+                                            name={icons[key]}
+                                            size={22}
+                                            color={colors.accent}
                                         />
-                                    )}
-                                </View>
-                            </TouchableOpacity>
-                        );
-                    })}
-                </View>
+                                        <View>
+                                            <Text style={styles.planTitle}>
+                                                {t(`premium.plans.${key}.title`)}
+                                            </Text>
+                                            <Text style={styles.planSub}>
+                                                {t(`premium.plans.${key}.subtitle`)}
+                                            </Text>
+                                        </View>
+                                    </View>
+
+                                    <View style={styles.planRight}>
+                                        <Text style={styles.price}>{price}</Text>
+                                        {isPurchasing ? (
+                                            <ActivityIndicator
+                                                color={colors.accent}
+                                                size='small'
+                                            />
+                                        ) : (
+                                            <Ionicons
+                                                name='chevron-forward'
+                                                size={18}
+                                                color={colors.textMuted}
+                                            />
+                                        )}
+                                    </View>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+                ) : (
+                    <View style={styles.unavailableBanner}>
+                        <Text style={styles.unavailableTitle}>
+                            {t('premium.unavailableTitle')}
+                        </Text>
+                        <Text style={styles.unavailableText}>
+                            {t('premium.unavailableMessage')}
+                        </Text>
+                    </View>
+                )}
+
+                <Text style={styles.noticeText}>
+                    {t('premium.subscriptionNotice')}
+                </Text>
 
                 <TouchableOpacity
                     style={styles.restoreBtn}
@@ -167,6 +177,32 @@ export default function PremiumScreen({ navigation }) {
                         {t('premium.restore')}
                     </Text>
                 </TouchableOpacity>
+
+                <View style={styles.legalLinks}>
+                    <TouchableOpacity
+                        onPress={() =>
+                            Linking.openURL(
+                                'https://cdlwallet-privacypolicy.carrd.co/'
+                            )
+                        }
+                    >
+                        <Text style={styles.legalLink}>
+                            {t('settings.privacyPolicy')}
+                        </Text>
+                    </TouchableOpacity>
+                    <Text style={styles.legalDot}>•</Text>
+                    <TouchableOpacity
+                        onPress={() =>
+                            Linking.openURL(
+                                'https://cdlwallet-termsofuse.carrd.co/'
+                            )
+                        }
+                    >
+                        <Text style={styles.legalLink}>
+                            {t('settings.termsOfUse')}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
             </ScrollView>
         </SafeAreaView>
     );
@@ -233,6 +269,24 @@ const styles = StyleSheet.create({
         fontSize: theme.font.md,
         lineHeight: 18
     },
+    unavailableBanner: {
+        backgroundColor: colors.bgCard,
+        borderColor: colors.border,
+        borderWidth: 1,
+        borderRadius: theme.radius.md,
+        padding: theme.spacing.md
+    },
+    unavailableTitle: {
+        color: colors.textPrimary,
+        fontSize: theme.font.base,
+        fontWeight: '700',
+        marginBottom: 4
+    },
+    unavailableText: {
+        color: colors.textMuted,
+        fontSize: theme.font.md,
+        lineHeight: 18
+    },
     activeBanner: {
         backgroundColor: '#1a2a1e',
         borderColor: colors.green + '66',
@@ -288,6 +342,12 @@ const styles = StyleSheet.create({
         fontSize: theme.font.lg,
         fontWeight: '800'
     },
+    noticeText: {
+        color: colors.textMuted,
+        fontSize: theme.font.sm,
+        lineHeight: 16,
+        textAlign: 'center'
+    },
     restoreBtn: {
         alignItems: 'center',
         padding: theme.spacing.md
@@ -296,5 +356,20 @@ const styles = StyleSheet.create({
         color: colors.accent,
         fontSize: theme.font.base,
         fontWeight: '600'
+    },
+    legalLinks: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: theme.spacing.sm
+    },
+    legalLink: {
+        color: colors.textMuted,
+        fontSize: theme.font.md,
+        fontWeight: '600'
+    },
+    legalDot: {
+        color: colors.textMuted,
+        fontSize: theme.font.md
     }
 });

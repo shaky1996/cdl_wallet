@@ -14,8 +14,8 @@
       "buildNumber": "2",
       "infoPlist": {
         "NSFaceIDUsageDescription": "Use Face ID to unlock your CDL Wallet",
-        "NSCameraUsageDescription": "Take a photo of your CDL or med card",
-        "NSPhotoLibraryUsageDescription": "Upload your CDL or med card from photos",
+        "NSCameraUsageDescription": "Permission is needed to capture your documents.",
+        "NSPhotoLibraryUsageDescription": "Permission is needed to upload your documents.",
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -33,7 +33,8 @@
       "expo-notifications",
       "expo-local-authentication",
       "@react-native-community/datetimepicker",
-      "expo-build-properties"
+      "expo-build-properties",
+      "expo-font"
     ],
     "extra": {
       "eas": {

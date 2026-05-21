@@ -70,6 +70,11 @@ export const deleteDoc = async (docType) => {
     return docs;
 };
 
+export const deleteAllDocFiles = async () => {
+    await FileSystem.deleteAsync(DOCS_DIR, { idempotent: true });
+    await FileSystem.deleteAsync(ARCHIVE_DIR, { idempotent: true });
+};
+
 // Reset file storage
 // export const resetAppData = async () => {
 //     await AsyncStorage.clear();

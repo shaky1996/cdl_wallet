@@ -62,9 +62,15 @@ export const translations = {
             featureInsurance: 'Store and track insurance',
             featureWorkPermit: 'Store and track work permit or green card',
             setupBanner:
-                'RevenueCat is installed. Add your API keys and products in RevenueCat to enable live purchases.',
+                'Purchases are not available until RevenueCat is configured.',
             active: 'Premium access is active.',
             restore: 'Restore purchases',
+            priceUnavailable: 'Unavailable',
+            unavailableTitle: 'Purchases unavailable',
+            unavailableMessage:
+                'Premium plans could not be loaded. Please try again later.',
+            subscriptionNotice:
+                'Monthly and annual plans renew automatically until canceled. Lifetime is a one-time purchase.',
             setupRequiredTitle: 'RevenueCat setup required',
             setupRequiredMessage:
                 'Add your RevenueCat API keys before testing purchases.',
@@ -78,15 +84,15 @@ export const translations = {
             plans: {
                 monthly: {
                     title: 'Monthly',
-                    subtitle: '$2.99 per month'
+                    subtitle: 'Renews monthly'
                 },
                 annual: {
                     title: 'Annual',
-                    subtitle: '$19.99 per year'
+                    subtitle: 'Renews yearly'
                 },
                 lifetime: {
                     title: 'Lifetime',
-                    subtitle: 'One-time $29.99 access'
+                    subtitle: 'One-time access'
                 }
             }
         },
@@ -324,9 +330,15 @@ export const translations = {
             featureWorkPermit:
                 'Хранение и отслеживание срока действия разрешения на работу или Green Card',
             setupBanner:
-                'RevenueCat установлен. Добавьте API-ключи и продукты в RevenueCat, чтобы включить реальные покупки.',
+                'Покупки недоступны, пока RevenueCat не настроен.',
             active: 'Premium доступ активен.',
             restore: 'Восстановить покупки',
+            priceUnavailable: 'Недоступно',
+            unavailableTitle: 'Покупки недоступны',
+            unavailableMessage:
+                'Не удалось загрузить Premium планы. Попробуйте позже.',
+            subscriptionNotice:
+                'Ежемесячный и ежегодный планы продлеваются автоматически до отмены. Lifetime — единоразовая покупка.',
             setupRequiredTitle: 'Нужна настройка RevenueCat',
             setupRequiredMessage:
                 'Добавьте API-ключи RevenueCat перед тестированием покупок.',
@@ -340,15 +352,15 @@ export const translations = {
             plans: {
                 monthly: {
                     title: 'Ежемесячно',
-                    subtitle: '$2.99 в месяц'
+                    subtitle: 'Автопродление каждый месяц'
                 },
                 annual: {
                     title: 'Ежегодно',
-                    subtitle: '$19.99 в год'
+                    subtitle: 'Автопродление каждый год'
                 },
                 lifetime: {
                     title: 'Навсегда',
-                    subtitle: 'Единоразовая покупка за $29.99'
+                    subtitle: 'Единоразовая покупка'
                 }
             }
         },

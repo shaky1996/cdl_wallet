@@ -40,17 +40,22 @@ export const hasPremiumEntitlement = (customerInfo) =>
     'undefined';
 
 export const getPackageKey = (pkg) => {
+    const packageType = String(pkg?.packageType || '').toLowerCase();
     const identifier =
         pkg?.identifier ||
         pkg?.product?.identifier ||
         pkg?.storeProduct?.identifier ||
         '';
 
-    if (identifier.includes('annual') || identifier.includes('year')) {
+    if (
+        packageType.includes('annual') ||
+        identifier.includes('annual') ||
+        identifier.includes('year')
+    ) {
         return 'annual';
     }
 
-    if (identifier.includes('lifetime')) {
+    if (packageType.includes('lifetime') || identifier.includes('lifetime')) {
         return 'lifetime';
     }
 

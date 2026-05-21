@@ -16,6 +16,7 @@ import { common } from '../styles/common';
 // import { sweepOrphanFiles } from '../services/storage';
 import Header from '../components/Header';
 import { useLanguage } from '../i18n/LanguageContext';
+import { deleteAllDocFiles } from '../services/fileSystem';
 
 
 
@@ -81,6 +82,7 @@ export default function SettingsScreen() {
                     style: 'destructive',
                     onPress: async () => {
                         try {
+                            await deleteAllDocFiles();
                             await AsyncStorage.clear();
                             await setLanguage('system');
                             Alert.alert(

@@ -17,36 +17,6 @@ import { useLanguage } from '../i18n/LanguageContext';
 
 const PremiumContext = createContext(null);
 
-const fallbackPackages = [
-    {
-        identifier: 'monthly',
-        packageType: 'MONTHLY',
-        product: {
-            identifier: 'cdl_wallet_premium_monthly',
-            title: 'Monthly',
-            priceString: '$2.99'
-        }
-    },
-    {
-        identifier: 'annual',
-        packageType: 'ANNUAL',
-        product: {
-            identifier: 'cdl_wallet_premium_annual',
-            title: 'Annual',
-            priceString: '$19.99'
-        }
-    },
-    {
-        identifier: 'lifetime',
-        packageType: 'LIFETIME',
-        product: {
-            identifier: 'cdl_wallet_premium_lifetime',
-            title: 'Lifetime',
-            priceString: '$29.99'
-        }
-    }
-];
-
 export function PremiumProvider({ children }) {
     const { t } = useLanguage();
     const [isPremium, setIsPremium] = useState(false);
@@ -65,7 +35,7 @@ export function PremiumProvider({ children }) {
 
     const loadOfferings = useCallback(async () => {
         if (!isConfigured || Platform.OS === 'web') {
-            setOfferings({ current: { availablePackages: fallbackPackages } });
+            setOfferings(null);
             return;
         }
 
@@ -89,16 +59,12 @@ export function PremiumProvider({ children }) {
                     if (!isMounted) return;
                     setOfferings(nextOfferings);
                 } else {
-                    setOfferings({
-                        current: { availablePackages: fallbackPackages }
-                    });
+                    setOfferings(null);
                 }
             } catch (e) {
                 console.warn('RevenueCat init failed:', e.message);
                 if (isMounted) {
-                    setOfferings({
-                        current: { availablePackages: fallbackPackages }
-                    });
+                    setOfferings(null);
                 }
             } finally {
                 if (isMounted) setLoading(false);
@@ -174,9 +140,7 @@ export function PremiumProvider({ children }) {
     }, [isConfigured, t]);
 
     const packages = useMemo(() => {
-        const available = offerings?.current?.availablePackages?.length
-            ? offerings.current.availablePackages
-            : fallbackPackages;
+        const available = offerings?.current?.availablePackages || [];
 
         return [...available].sort((a, b) => {
             const order = { monthly: 0, annual: 1, lifetime: 2 };
