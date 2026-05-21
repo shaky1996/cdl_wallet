@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 import Purchases, { LOG_LEVEL } from 'react-native-purchases';
 
-export const PREMIUM_ENTITLEMENT = 'premium';
+export const PREMIUM_ENTITLEMENT = 'cdl_wallet_premium';
 
 export const REVENUECAT_PRODUCT_IDS = {
     monthly: 'cdl_wallet_premium_monthly',
