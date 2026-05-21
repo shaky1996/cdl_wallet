@@ -78,6 +78,9 @@ export const translations = {
             restoreError: 'Could not restore purchases. Please try again.',
             restoredTitle: 'Purchases restored',
             restoredMessage: 'Premium access has been restored.',
+            managementUnavailableTitle: 'Subscription unavailable',
+            managementUnavailableMessage:
+                'No subscription management link is available yet. If you purchased through Apple, manage it in your App Store account settings.',
             noPurchasesTitle: 'No purchases found',
             noPurchasesMessage:
                 'No active premium purchase was found for this account.',
@@ -237,6 +240,13 @@ export const translations = {
         },
         settings: {
             backup: 'Back Up',
+            subscription: 'Subscription',
+            premiumAccess: 'Premium access',
+            premiumActive: 'Premium is active',
+            activePlan: 'Active plan: {plan}',
+            lifetimeAccess: 'Lifetime access',
+            noActiveSubscription: 'No active subscription',
+            manage: 'Manage ›',
             language: 'Language',
             appLanguage: 'App language',
             appLanguageSub: 'Choose the language used in the app',
@@ -346,6 +356,9 @@ export const translations = {
             restoreError: 'Не удалось восстановить покупки. Попробуйте еще раз.',
             restoredTitle: 'Покупки восстановлены',
             restoredMessage: 'Premium доступ восстановлен.',
+            managementUnavailableTitle: 'Подписка недоступна',
+            managementUnavailableMessage:
+                'Ссылка для управления подпиской пока недоступна. Если покупка была через Apple, управляйте ей в настройках аккаунта App Store.',
             noPurchasesTitle: 'Покупки не найдены',
             noPurchasesMessage:
                 'Для этого аккаунта не найдена активная Premium подписка.',
@@ -507,6 +520,13 @@ export const translations = {
         },
         settings: {
             backup: 'Резервная копия',
+            subscription: 'Подписка',
+            premiumAccess: 'Premium доступ',
+            premiumActive: 'Premium активен',
+            activePlan: 'Активный план: {plan}',
+            lifetimeAccess: 'Пожизненный доступ',
+            noActiveSubscription: 'Нет активной подписки',
+            manage: 'Управлять ›',
             language: 'Язык',
             appLanguage: 'Язык приложения',
             appLanguageSub: 'Выберите язык интерфейса приложения',

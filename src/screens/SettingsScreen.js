@@ -17,6 +17,7 @@ import { common } from '../styles/common';
 import Header from '../components/Header';
 import { useLanguage } from '../i18n/LanguageContext';
 import { deleteAllDocFiles } from '../services/fileSystem';
+import { usePremium } from '../iap/PremiumContext';
 
 
 
@@ -27,6 +28,17 @@ export default function SettingsScreen() {
     // const [orphanCount, setOrphanCount] = useState(null);
     const [biometricsEnabled, setBiometricsEnabled] = useState(true);
     const { languagePreference, setLanguage, t } = useLanguage();
+    const { isPremium, customerInfo, openManagementUrl } = usePremium();
+    const activeSubscription = customerInfo?.activeSubscriptions?.[0];
+    const activeSubscriptionLabel = activeSubscription?.includes('annual')
+        ? t('premium.plans.annual.title')
+        : activeSubscription?.includes('monthly')
+          ? t('premium.plans.monthly.title')
+          : activeSubscription;
+    const hasLifetimePurchase =
+        customerInfo?.allPurchasedProductIdentifiers?.includes(
+            'cdl_wallet_premium_lifetime'
+        );
 
     useEffect(() => {
         loadPrefs();
@@ -239,6 +251,36 @@ export default function SettingsScreen() {
                     <Text style={styles.noticeText}>
                         {t('settings.backupText')}
                     </Text>
+                </View>
+
+                <Text style={[styles.sectionLabel, { marginTop: 24 }]}>
+                    {t('settings.subscription')}
+                </Text>
+                <View style={styles.settingsGroup}>
+                    <TouchableOpacity
+                        style={styles.settingRow}
+                        onPress={openManagementUrl}
+                    >
+                        <View style={styles.settingInfo}>
+                            <Text style={styles.settingName}>
+                                {t('settings.premiumAccess')}
+                            </Text>
+                            <Text style={styles.settingSub}>
+                                {isPremium
+                                    ? activeSubscription
+                                        ? t('settings.activePlan', {
+                                              plan: activeSubscriptionLabel
+                                          })
+                                        : hasLifetimePurchase
+                                          ? t('settings.lifetimeAccess')
+                                          : t('settings.premiumActive')
+                                    : t('settings.noActiveSubscription')}
+                            </Text>
+                        </View>
+                        <Text style={styles.settingVal}>
+                            {t('settings.manage')}
+                        </Text>
+                    </TouchableOpacity>
                 </View>
 
                 {/* About section */}

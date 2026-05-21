@@ -115,7 +115,10 @@ export default function PremiumScreen({ navigation }) {
                                         styles.plan,
                                         key === 'annual' && styles.planFeatured
                                     ]}
-                                    onPress={() => purchase(pkg)}
+                                    onPress={async () => {
+                                        const purchased = await purchase(pkg);
+                                        if (purchased) navigation.goBack();
+                                    }}
                                     disabled={loading || !!purchasingPackageId}
                                 >
                                     <View style={styles.planLeft}>

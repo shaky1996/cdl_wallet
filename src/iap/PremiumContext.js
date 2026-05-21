@@ -6,7 +6,7 @@ import React, {
     useMemo,
     useState
 } from 'react';
-import { Alert, Platform } from 'react-native';
+import { Alert, Linking, Platform } from 'react-native';
 import Purchases from 'react-native-purchases';
 import {
     configureRevenueCat,
@@ -21,6 +21,7 @@ export function PremiumProvider({ children }) {
     const { t } = useLanguage();
     const [isPremium, setIsPremium] = useState(false);
     const [isConfigured, setIsConfigured] = useState(false);
+    const [customerInfo, setCustomerInfo] = useState(null);
     const [offerings, setOfferings] = useState(null);
     const [loading, setLoading] = useState(true);
     const [purchasingPackageId, setPurchasingPackageId] = useState(null);
@@ -29,6 +30,7 @@ export function PremiumProvider({ children }) {
         if (!isConfigured || Platform.OS === 'web') return null;
 
         const customerInfo = await Purchases.getCustomerInfo();
+        setCustomerInfo(customerInfo);
         setIsPremium(hasPremiumEntitlement(customerInfo));
         return customerInfo;
     }, [isConfigured]);
@@ -53,6 +55,7 @@ export function PremiumProvider({ children }) {
                 if (configured) {
                     const customerInfo = await Purchases.getCustomerInfo();
                     if (!isMounted) return;
+                    setCustomerInfo(customerInfo);
                     setIsPremium(hasPremiumEntitlement(customerInfo));
 
                     const nextOfferings = await Purchases.getOfferings();
@@ -93,6 +96,7 @@ export function PremiumProvider({ children }) {
             try {
                 const { customerInfo } = await Purchases.purchasePackage(pkg);
                 const hasAccess = hasPremiumEntitlement(customerInfo);
+                setCustomerInfo(customerInfo);
                 setIsPremium(hasAccess);
                 return hasAccess;
             } catch (e) {
@@ -121,6 +125,7 @@ export function PremiumProvider({ children }) {
         try {
             const customerInfo = await Purchases.restorePurchases();
             const hasAccess = hasPremiumEntitlement(customerInfo);
+            setCustomerInfo(customerInfo);
             setIsPremium(hasAccess);
 
             Alert.alert(
@@ -139,6 +144,21 @@ export function PremiumProvider({ children }) {
         }
     }, [isConfigured, t]);
 
+    const openManagementUrl = useCallback(async () => {
+        const url = customerInfo?.managementURL;
+
+        if (url) {
+            await Linking.openURL(url);
+            return true;
+        }
+
+        Alert.alert(
+            t('premium.managementUnavailableTitle'),
+            t('premium.managementUnavailableMessage')
+        );
+        return false;
+    }, [customerInfo, t]);
+
     const packages = useMemo(() => {
         const available = offerings?.current?.availablePackages || [];
 
@@ -152,10 +172,13 @@ export function PremiumProvider({ children }) {
         () => ({
             isPremium,
             isConfigured,
+            customerInfo,
             loading,
+            managementURL: customerInfo?.managementURL || null,
             packages,
             purchasingPackageId,
             loadOfferings,
+            openManagementUrl,
             purchase,
             refreshCustomerInfo,
             restore
@@ -163,10 +186,12 @@ export function PremiumProvider({ children }) {
         [
             isPremium,
             isConfigured,
+            customerInfo,
             loading,
             packages,
             purchasingPackageId,
             loadOfferings,
+            openManagementUrl,
             purchase,
             refreshCustomerInfo,
             restore
