@@ -460,17 +460,20 @@ const styles = StyleSheet.create({
     },
     docTypeOptions: {
         flexDirection: 'row',
+        flexWrap: 'wrap',
         gap: theme.spacing.sm,
         marginBottom: theme.spacing.lg
     },
     docTypeOption: {
-        flex: 1,
+        width: '48%',
+        minHeight: 54,
         backgroundColor: theme.colors.bgCard,
         borderRadius: theme.radius.md,
         borderWidth: 1,
         borderColor: theme.colors.border,
         padding: theme.spacing.md,
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     docTypeOptionSelected: {
         backgroundColor: theme.colors.accent,
@@ -479,7 +482,9 @@ const styles = StyleSheet.create({
     docTypeOptionText: {
         color: theme.colors.textPrimary,
         fontSize: theme.font.md,
-        fontWeight: '600'
+        fontWeight: '600',
+        textAlign: 'center',
+        lineHeight: 17
     },
     docTypeOptionTextSelected: {
         color: '#1a1200'

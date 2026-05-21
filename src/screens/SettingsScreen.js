@@ -248,7 +248,7 @@ export default function SettingsScreen() {
                         <Text style={styles.settingName}>
                             {t('settings.version')}
                         </Text>
-                        <Text style={styles.settingVal}>1.0.0</Text>
+                        <Text style={styles.settingVal}>1.0.1</Text>
                     </View>
                     <View style={styles.rowDivider} />
                     <View style={styles.settingRow}>

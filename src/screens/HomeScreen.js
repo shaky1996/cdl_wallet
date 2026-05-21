@@ -54,7 +54,7 @@ export default function HomeScreen({ navigation }) {
 
             <ScrollView
                 style={styles.body}
-                contentContainerStyle={{ gap: 12 }}
+                contentContainerStyle={styles.scrollContent}
             >
                 <Text style={styles.sectionLabel}>{t('home.sectionLabel')}</Text>
 
@@ -121,7 +121,12 @@ const styles = StyleSheet.create({
     },
     appName: { color: colors.accent, fontSize: 24, fontWeight: '600' },
     headerSub: { color: colors.textMuted, fontSize: 13, marginTop: 2 },
-    body: { flex: 1, backgroundColor: colors.bgBody, padding: 16 },
+    body: { flex: 1, backgroundColor: colors.bgBody },
+    scrollContent: {
+        padding: 16,
+        paddingBottom: 40,
+        gap: 12
+    },
     sectionLabel: {
         color: colors.textMuted,
         fontSize: 10,
