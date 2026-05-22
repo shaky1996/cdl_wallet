@@ -32,6 +32,7 @@ export const translations = {
             delete: 'Delete',
             error: 'Error',
             genericError: 'Something went wrong. Please try again.',
+            done: 'Done',
             ok: 'OK',
             read: 'Read ›',
             share: 'Share',
@@ -56,6 +57,10 @@ export const translations = {
             subtitle:
                 'Track truck registration, annual inspection, insurance, and work authorization alongside your CDL and med card.',
             tapToUnlock: 'Premium - tap to unlock',
+            documentsTitle: 'Premium Documents',
+            documentsSubtitle:
+                'Unlock additional document types to stay compliant and organized.',
+            badge: 'Premium',
             lockedDocument: 'Premium document',
             featureRegistration: 'Store and track truck registration',
             featureInspection: 'Store and track annual inspection',
@@ -309,6 +314,7 @@ export const translations = {
             delete: 'Удалить',
             error: 'Ошибка',
             genericError: 'Что-то пошло не так. Попробуйте еще раз.',
+            done: 'Готово',
             ok: 'ок',
             read: 'Открыть ›',
             share: 'Отправить',
@@ -333,6 +339,10 @@ export const translations = {
             subtitle:
                 'Отслеживайте срок действия и храните разрешение на работу, регистрацию грузовика, годовую инспекцию и страховку вместе с CDL и медкартой.',
             tapToUnlock: 'Premium - нажмите, чтобы открыть',
+            documentsTitle: 'Premium документы',
+            documentsSubtitle:
+                'Откройте дополнительные типы документов, чтобы оставаться организованным и готовым к проверкам.',
+            badge: 'Premium',
             lockedDocument: 'Premium документ',
             featureRegistration: 'Хранение и отслеживание срока действия регистрации грузовика',
             featureInspection: 'Хранение и отслеживание срока действия годовой инспекции',

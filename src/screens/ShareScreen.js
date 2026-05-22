@@ -7,7 +7,11 @@ import {
     StyleSheet,
     SafeAreaView,
     Alert,
-    ScrollView
+    ScrollView,
+    KeyboardAvoidingView,
+    InputAccessoryView,
+    Keyboard,
+    Platform
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import * as MailComposer from 'expo-mail-composer';
@@ -23,8 +27,14 @@ import InfoBanner from '../components/InfoBanner';
 import { useRoute } from '@react-navigation/native';
 import { useEffect } from 'react';
 import { useLanguage } from '../i18n/LanguageContext';
-import { ALL_DOC_TYPES, isPremiumDocType } from '../constants/docTypes';
+import {
+    ALL_DOC_TYPES,
+    BASE_DOC_TYPES,
+    isPremiumDocType
+} from '../constants/docTypes';
 import { usePremium } from '../iap/PremiumContext';
+
+const EMAIL_ACCESSORY_ID = 'share-email-accessory';
 
 export default function ShareScreen() {
     const { locale, t } = useLanguage();
@@ -38,6 +48,7 @@ export default function ShareScreen() {
     const [sending, setSending] = useState(false);
 
     const route = useRoute();
+    const visibleDocTypes = isPremium ? ALL_DOC_TYPES : BASE_DOC_TYPES;
 
     const isValidEmail = (value) => {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
@@ -184,104 +195,132 @@ export default function ShareScreen() {
     return (
         <SafeAreaView style={styles.safe}>
             <Header subtitle={t('header.share')} />
-            <ScrollView
-                style={styles.body}
-                contentContainerStyle={styles.scrollContent}
-                keyboardShouldPersistTaps='handled'
+            <KeyboardAvoidingView
+                style={styles.keyboardWrap}
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             >
-                <Text style={styles.label}>{t('shareScreen.selectDocuments')}</Text>
-                {ALL_DOC_TYPES.map((type) => {
-                    const locked = isPremiumDocType(type) && !isPremium;
-                    const isAvailable = !!docs[type] && !locked;
+                <ScrollView
+                    style={styles.body}
+                    contentContainerStyle={styles.scrollContent}
+                    keyboardShouldPersistTaps='handled'
+                    keyboardDismissMode='interactive'
+                >
+                    <Text style={styles.label}>{t('shareScreen.selectDocuments')}</Text>
+                    {visibleDocTypes.map((type) => {
+                        const locked = isPremiumDocType(type) && !isPremium;
+                        const isAvailable = !!docs[type] && !locked;
 
-                    return (
-                        <TouchableOpacity
-                            key={type}
-                            style={[
-                                styles.docRow,
-                                selected[type] && styles.docRowSelected,
-                                !isAvailable && styles.docRowDisabled
-                            ]}
-                            onPress={() => isAvailable && toggle(type)}
-                            disabled={!isAvailable}
-                        >
-                            <View
+                        return (
+                            <TouchableOpacity
+                                key={type}
                                 style={[
-                                    styles.check,
-                                    selected[type] && styles.checkOn
+                                    styles.docRow,
+                                    selected[type] && styles.docRowSelected,
+                                    !isAvailable && styles.docRowDisabled
                                 ]}
+                                onPress={() => isAvailable && toggle(type)}
+                                disabled={!isAvailable}
                             >
-                                {selected[type] && (
-                                    <Text style={styles.checkMark}>✓</Text>
-                                )}
-                            </View>
-                            <View style={{ flex: 1 }}>
-                                <Text style={styles.docName}>
-                                    {t(`docs.${type}`)}
-                                </Text>
-                                <Text style={styles.docSub}>
-                                    {locked
-                                        ? t('premium.lockedDocument')
-                                        : docs[type]
-                                        ? t('shareScreen.expiresOn', {
-                                              date: formatPrettyDate(
-                                                  docs[type].expiryDate,
-                                                  locale
-                                              )
-                                          })
-                                        : t('docs.notUploaded')}
-                                </Text>
-                            </View>
-                            <Text style={styles.pdfBadge}>PDF</Text>
-                        </TouchableOpacity>
-                    );
-                })}
+                                <View
+                                    style={[
+                                        styles.check,
+                                        selected[type] && styles.checkOn
+                                    ]}
+                                >
+                                    {selected[type] && (
+                                        <Text style={styles.checkMark}>✓</Text>
+                                    )}
+                                </View>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={styles.docName}>
+                                        {t(`docs.${type}`)}
+                                    </Text>
+                                    <Text style={styles.docSub}>
+                                        {locked
+                                            ? t('premium.lockedDocument')
+                                            : docs[type]
+                                            ? t('shareScreen.expiresOn', {
+                                                  date: formatPrettyDate(
+                                                      docs[type].expiryDate,
+                                                      locale
+                                                  )
+                                              })
+                                            : t('docs.notUploaded')}
+                                    </Text>
+                                </View>
+                                <Text style={styles.pdfBadge}>PDF</Text>
+                            </TouchableOpacity>
+                        );
+                    })}
 
-                <Text style={[styles.label, { marginTop: 16 }]}>
-                    {t('shareScreen.employerEmail')}
-                </Text>
-                <TextInput
-                    style={styles.input}
-                    value={email}
-                    onChangeText={setEmail}
-                    placeholder='dispatch@company.com'
-                    placeholderTextColor={colors.textMuted}
-                    keyboardType='email-address'
-                    autoCapitalize='none'
-                    returnKeyType='done'
-                />
-
-                <InfoBanner
-                    text={
-                        t('shareScreen.info')
-                    }
-                    color={colors.blue}
-                    backgroundColor={'#1a1f2e'}
-                />
-
-                {/* EMAIL BUTTON */}
-                <TouchableOpacity
-                    style={[styles.sendBtn, sending && { opacity: 0.5 }]}
-                    onPress={handleSend}
-                    disabled={sending}
-                >
-                    <Text style={styles.sendBtnText}>
-                        {sending
-                            ? t('shareScreen.preparing')
-                            : t('shareScreen.emailDocuments')}
+                    <Text style={[styles.label, { marginTop: 16 }]}>
+                        {t('shareScreen.employerEmail')}
                     </Text>
-                </TouchableOpacity>
+                    <TextInput
+                        style={styles.input}
+                        value={email}
+                        onChangeText={setEmail}
+                        placeholder='dispatch@company.com'
+                        placeholderTextColor={colors.textMuted}
+                        keyboardType='email-address'
+                        autoCapitalize='none'
+                        returnKeyType='done'
+                        blurOnSubmit
+                        onSubmitEditing={Keyboard.dismiss}
+                        inputAccessoryViewID={
+                            Platform.OS === 'ios'
+                                ? EMAIL_ACCESSORY_ID
+                                : undefined
+                        }
+                    />
 
-                {/* SHARE BUTTON */}
-                <TouchableOpacity
-                    style={[styles.sendBtn]}
-                    onPress={handleShare}
-                >
-                    <Text style={styles.sendBtnText}>
-                        {t('shareScreen.shareDocuments')}
-                    </Text>
-                </TouchableOpacity>
-            </ScrollView>
+                    <InfoBanner
+                        text={
+                            t('shareScreen.info')
+                        }
+                        color={colors.blue}
+                        backgroundColor={'#1a1f2e'}
+                    />
+
+                    {/* EMAIL BUTTON */}
+                    <TouchableOpacity
+                        style={[styles.sendBtn, sending && { opacity: 0.5 }]}
+                        onPress={handleSend}
+                        disabled={sending}
+                    >
+                        <Text style={styles.sendBtnText}>
+                            {sending
+                                ? t('shareScreen.preparing')
+                                : t('shareScreen.emailDocuments')}
+                        </Text>
+                    </TouchableOpacity>
+
+                    {/* SHARE BUTTON */}
+                    <TouchableOpacity
+                        style={[styles.sendBtn]}
+                        onPress={handleShare}
+                    >
+                        <Text style={styles.sendBtnText}>
+                            {t('shareScreen.shareDocuments')}
+                        </Text>
+                    </TouchableOpacity>
+                </ScrollView>
+
+                {Platform.OS === 'ios' ? (
+                    <InputAccessoryView nativeID={EMAIL_ACCESSORY_ID}>
+                        <View style={styles.keyboardAccessory}>
+                            <TouchableOpacity
+                                style={styles.keyboardDoneBtn}
+                                onPress={Keyboard.dismiss}
+                            >
+                                <Text style={styles.keyboardDoneText}>
+                                    {t('common.done')}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </InputAccessoryView>
+                ) : null}
+            </KeyboardAvoidingView>
         </SafeAreaView>
     );
 }
@@ -294,10 +333,13 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         padding: 20
     },
+    keyboardWrap: {
+        flex: 1
+    },
     body: { flex: 1, backgroundColor: colors.bgBody },
     scrollContent: {
         padding: 16,
-        paddingBottom: 40,
+        paddingBottom: 120,
         gap: 8
     },
     label: {
@@ -377,5 +419,23 @@ const styles = StyleSheet.create({
         color: colors.accent,
         fontSize: 15,
         fontWeight: '600'
+    },
+    keyboardAccessory: {
+        minHeight: 44,
+        backgroundColor: colors.bgCard,
+        borderTopWidth: 1,
+        borderTopColor: colors.border,
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+        paddingHorizontal: 16
+    },
+    keyboardDoneBtn: {
+        paddingHorizontal: 10,
+        paddingVertical: 8
+    },
+    keyboardDoneText: {
+        color: colors.accent,
+        fontSize: 15,
+        fontWeight: '700'
     }
 });
