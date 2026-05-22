@@ -139,7 +139,7 @@ export default function HomeScreen({ navigation }) {
                                             <Ionicons
                                                 name='document-text-outline'
                                                 size={16}
-                                                color={colors.textMuted}
+                                                color={colors.green}
                                             />
                                         </View>
                                         <Text style={styles.premiumRowTitle}>
