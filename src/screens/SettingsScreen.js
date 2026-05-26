@@ -292,7 +292,7 @@ export default function SettingsScreen() {
                         <Text style={styles.settingName}>
                             {t('settings.version')}
                         </Text>
-                        <Text style={styles.settingVal}>1.0.1</Text>
+                        <Text style={styles.settingVal}>1.0.2</Text>
                     </View>
                     <View style={styles.rowDivider} />
                     <View style={styles.settingRow}>
@@ -355,7 +355,7 @@ export default function SettingsScreen() {
                     </Text>
                 </TouchableOpacity>
 
-                <Text style={styles.footer}>CDL Wallet v1.0.1</Text>
+                <Text style={styles.footer}>CDL Wallet v1.0.2</Text>
                 <Text style={styles.footer}>© 2026 CDL Wallet</Text>
             </ScrollView>
         </SafeAreaView>
