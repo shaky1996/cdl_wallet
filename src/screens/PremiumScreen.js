@@ -36,6 +36,13 @@ export default function PremiumScreen({ navigation }) {
         restore
     } = usePremium();
 
+    const navigateHome = () => {
+        navigation.navigate('Tabs', {
+            screen: 'Wallet',
+            params: { screen: 'Home' }
+        });
+    };
+
     return (
         <SafeAreaView style={common.safeArea}>
             <BackButtonBar
@@ -117,7 +124,7 @@ export default function PremiumScreen({ navigation }) {
                                     ]}
                                     onPress={async () => {
                                         const purchased = await purchase(pkg);
-                                        if (purchased) navigation.goBack();
+                                        if (purchased) navigateHome();
                                     }}
                                     disabled={loading || !!purchasingPackageId}
                                 >
@@ -173,7 +180,10 @@ export default function PremiumScreen({ navigation }) {
 
                 <TouchableOpacity
                     style={styles.restoreBtn}
-                    onPress={restore}
+                    onPress={async () => {
+                        const restored = await restore();
+                        if (restored) navigateHome();
+                    }}
                     disabled={loading}
                 >
                     <Text style={styles.restoreText}>
