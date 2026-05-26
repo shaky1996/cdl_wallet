@@ -53,7 +53,7 @@ export const translations = {
         },
         premium: {
             title: 'Premium',
-            headline: 'Unlock the complete wallet',
+            headline: 'Unlock the Premium CDL Wallet',
             subtitle:
                 'Track truck registration, annual inspection, insurance, and work authorization alongside your CDL and med card.',
             tapToUnlock: 'Premium - tap to unlock',
