@@ -10,7 +10,7 @@ export const REVENUECAT_PRODUCT_IDS = {
 };
 
 const API_KEYS = {
-    ios: appl_eAjPiLimJtcOGixrPheXfxwOLLv,
+    ios: 'appl_eAjPiLimJtcOGixrPheXfxwOLLv',
     android: process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY || ''
 };
 
