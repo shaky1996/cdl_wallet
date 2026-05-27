@@ -83,35 +83,29 @@ This project was fully designed and developed independently as a production-read
 # Screenshots
 
 <p align="center">
-  <strong>Home Screen</strong><br/>
   <img src="./assets/screenshots/home.png" width="230" alt="Home Screen" />
-
-  &nbsp;&nbsp;&nbsp;
-
-  <strong>Document Viewer</strong><br/>
+  <img src="./assets/screenshots/upload.png" width="230" alt="Upload Documents" />
   <img src="./assets/screenshots/viewer.png" width="230" alt="Document Viewer" />
+</p>
 
-  &nbsp;&nbsp;&nbsp;
-
-  <strong>Share Documents</strong><br/>
-  <img src="./assets/screenshots/share.png" width="230" alt="Share Documents" />
+<p align="center">
+  <strong>Home Screen</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <strong>Upload Documents</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <strong>Document Viewer</strong>
 </p>
 
 <br/>
 
 <p align="center">
-  <strong>Archive</strong><br/>
+  <img src="./assets/screenshots/share.png" width="230" alt="Share Documents" />
   <img src="./assets/screenshots/archive.png" width="230" alt="Archive Screen" />
-
-  &nbsp;&nbsp;&nbsp;
-
-  <strong>Premium Features</strong><br/>
   <img src="./assets/screenshots/premium.png" width="230" alt="Premium Features" />
+</p>
 
-  &nbsp;&nbsp;&nbsp;
-
-  <strong>Upload Documents</strong><br/>
-  <img src="./assets/screenshots/upload.png" width="230" alt="Upload Documents" />
+<p align="center">
+  <strong>Share Documents</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <strong>Archive</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <strong>Premium Features</strong>
 </p>
 
 ---
